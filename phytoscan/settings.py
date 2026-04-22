@@ -11,13 +11,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ── Sécurité ───────────────────────────────────────────────────────────────
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
-# En production, Render fournit automatiquement le domaine .onrender.com
-# On l'ajoute ici pour éviter les erreurs 400
+# Render injecte automatiquement RENDER_EXTERNAL_HOSTNAME
+# On l'utilise pour construire ALLOWED_HOSTS sans configuration manuelle
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default='')
+
+_allowed = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = list(_allowed)
+
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Sécurité supplémentaire : accepter tout sous-domaine .onrender.com
+if not DEBUG:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 # ── Clé API Groq pour le chatbot ───────────────────────────────────────────
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
@@ -68,8 +75,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'phytoscan.wsgi.application'
 
 # ── Base de données ────────────────────────────────────────────────────────
-# En développement : SQLite
-# En production sur Render : PostgreSQL via DATABASE_URL
 DATABASE_URL = config('DATABASE_URL', default='')
 if DATABASE_URL:
     DATABASES = {
@@ -105,9 +110,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ── Fichiers média (uploads utilisateurs) ─────────────────────────────────
+# CompressedStaticFilesStorage (sans Manifest) : plus robuste sur Render.
+# CompressedManifestStaticFilesStorage peut planter si collectstatic
+# n'a pas généré le fichier staticfiles.json correctement.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# ── Fichiers média ─────────────────────────────────────────────────────────
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -117,10 +126,17 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Paramètres de sécurité supplémentaires (production uniquement) ─────────
+# ── Sécurité HTTPS (production uniquement) ─────────────────────────────────
 if not DEBUG:
+    # Render termine le SSL au niveau du proxy et transmet les requêtes
+    # à Django en HTTP avec ce header. NE PAS activer SECURE_SSL_REDIRECT
+    # car Render gère les redirections HTTPS lui-même.
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
+
+    # SECURE_SSL_REDIRECT = True  <-- DÉSACTIVÉ intentionnellement sur Render
+    # Activer ce paramètre provoquerait une boucle de redirection infinie
+    # car Django recevrait toujours des requêtes HTTP en interne.
+
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
