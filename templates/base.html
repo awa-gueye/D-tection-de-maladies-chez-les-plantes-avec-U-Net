@@ -1,0 +1,125 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ SITE_NAME }} — {{ SITE_TAGLINE }}{% endblock %}</title>
+<meta name="description" content="{% block description %}Détection précoce des maladies des plantes par IA. Segmentation U-Net entraînée sur le dataset PlantVillage (54 305 images).{% endblock %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><path d='M18 4C10 8 6 16 8 24C10 30 14 32 18 32C22 32 26 30 28 24C30 16 26 8 18 4Z' fill='%231B5E20'/></svg>">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="{% static 'css/chatbot.css' %}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="{% url 'core:home' %}" class="navbar-brand">
+      <span class="navbar-logo">
+        <svg viewBox="0 0 36 36" width="24" height="24">
+          <path d="M18 4C10 8 6 16 8 24C10 30 14 32 18 32C22 32 26 30 28 24C30 16 26 8 18 4Z" fill="rgba(255,255,255,.92)"/>
+          <path d="M18 32C18 32 17 24 20 20C23 16 26 17 28 24C26 30 22 32 18 32Z" fill="white"/>
+          <circle cx="18" cy="13" r="2.5" fill="rgba(200,146,42,.95)"/>
+        </svg>
+      </span>
+      <span class="navbar-name">Phyto<em>Scan</em></span>
+    </a>
+    <ul class="navbar-links">
+      <li><a href="{% url 'core:home' %}" class="navbar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Accueil</a></li>
+      <li><a href="{% url 'core:features' %}" class="navbar-link {% if request.resolver_match.url_name == 'features' %}active{% endif %}">Fonctionnalités</a></li>
+      <li><a href="{% url 'detection:index' %}" class="navbar-link {% if request.resolver_match.namespace == 'detection' %}active{% endif %}">Détection</a></li>
+      <li><a href="{% url 'core:dashboard' %}" class="navbar-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="{% url 'core:about' %}" class="navbar-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">À propos</a></li>
+      <li><a href="{% url 'core:faq' %}" class="navbar-link {% if request.resolver_match.url_name == 'faq' %}active{% endif %}">FAQ</a></li>
+      <li><a href="{% url 'core:contact' %}" class="navbar-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+    </ul>
+    <button class="navbar-mobile-toggle" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1B5E20" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════ CONTENU ═══════════ -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand">Phyto<em>Scan</em> <span style="font-size:1rem;color:var(--gold);font-weight:400"> AI</span></div>
+        <p>Plateforme de détection précoce des maladies des plantes par segmentation sémantique U-Net. Basée sur le dataset PlantVillage (Kaggle) comportant 54 305 images annotées de feuilles saines et malades.</p>
+        <div class="footer-social">
+          <a href="#" class="social-btn" title="LinkedIn" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+          <a href="#" class="social-btn" title="GitHub" aria-label="GitHub">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7"/></svg>
+          </a>
+          <a href="#" class="social-btn" title="Twitter" aria-label="Twitter">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5"/></svg>
+          </a>
+        </div>
+        <div class="footer-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#C8922A" stroke-width="2" width="13" height="13">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Dataset PlantVillage · 54 305 images
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navigation</h5>
+        <ul class="footer-links">
+          <li><a href="{% url 'core:home' %}">Accueil</a></li>
+          <li><a href="{% url 'core:features' %}">Fonctionnalités</a></li>
+          <li><a href="{% url 'detection:index' %}">Détection</a></li>
+          <li><a href="{% url 'core:dashboard' %}">Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Ressources</h5>
+        <ul class="footer-links">
+          <li><a href="{% url 'core:about' %}">À propos</a></li>
+          <li><a href="{% url 'core:faq' %}">FAQ</a></li>
+          <li><a href="{{ DATASET_URL }}" target="_blank" rel="noopener">Dataset Kaggle</a></li>
+          <li><a href="https://arxiv.org/abs/1505.04597" target="_blank" rel="noopener">Paper U-Net</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <ul class="footer-links">
+          <li><a href="{% url 'core:contact' %}">Nous écrire</a></li>
+          <li><a href="#">LinkedIn</a></li>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="#">Signaler un bug</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <span>© {{ CURRENT_YEAR }} {{ SITE_NAME }} · Tous droits réservés</span>
+      <span class="footer-status">
+        <span class="status-dot"></span>
+        Système opérationnel · Architecture U-Net · PlantVillage (Kaggle)
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════ CHATBOT WIDGET ═══════════ -->
+{% include 'chatbot/widget.html' %}
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/chatbot.js' %}"></script>
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

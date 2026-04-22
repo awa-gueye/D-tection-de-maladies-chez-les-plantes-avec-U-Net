@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}À propos — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="s-container">
+
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="s-kicker">Notre histoire</div>
+        <h2 class="s-title">Un projet de recherche au service du terrain</h2>
+        <p>PhytoScan AI est né d'un projet de recherche en deep learning appliqué à l'agriculture de précision. Son objectif fondamental : démocratiser l'accès aux outils modernes de diagnostic phytopathologique, afin que les agriculteurs, les chercheurs et les étudiants puissent bénéficier de la puissance de l'intelligence artificielle, indépendamment de leur expertise technique en informatique.</p>
+        <p>Notre approche combine deux piliers scientifiques éprouvés. D'une part, l'architecture U-Net introduite par Ronneberger et ses collègues en 2015, initialement conçue pour la segmentation d'images biomédicales, qui excelle dans les tâches de localisation précise sur des jeux de données de taille modérée. D'autre part, le dataset PlantVillage, compilé à la Penn State University par Hughes et Salathé, aujourd'hui référencé et maintenu sur Kaggle.</p>
+        <p>La combinaison de ces deux ressources, enrichie par des techniques avancées de data augmentation et une architecture optimisée, nous permet d'atteindre des performances dignes des standards scientifiques actuels.</p>
+        <div class="mission-stats" style="margin-top:2rem">
+          <div class="mini-stat"><div class="mini-stat-v">54 305</div><div class="mini-stat-l">Images</div></div>
+          <div class="mini-stat"><div class="mini-stat-v">14</div><div class="mini-stat-l">Espèces</div></div>
+          <div class="mini-stat"><div class="mini-stat-v">38</div><div class="mini-stat-l">Classes</div></div>
+        </div>
+      </div>
+      <div class="about-visual">
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <circle cx="150" cy="80" r="52" fill="#1B5E20" opacity=".1" stroke="#1B5E20" stroke-width="1.5"/>
+          <circle cx="150" cy="80" r="36" fill="#1B5E20" opacity=".2"/>
+          <circle cx="150" cy="80" r="20" fill="#1B5E20" opacity=".9"/>
+          <text x="150" y="85" text-anchor="middle" fill="white" font-size="10" font-weight="700" font-family="Arial">Équipe</text>
+          <circle cx="55" cy="160" r="24" fill="#C8922A" opacity=".9"/>
+          <text x="55" y="165" text-anchor="middle" fill="white" font-size="9" font-family="Arial" font-weight="600">U-Net</text>
+          <circle cx="150" cy="178" r="24" fill="#2E7D32" opacity=".9"/>
+          <text x="150" y="183" text-anchor="middle" fill="white" font-size="9" font-family="Arial" font-weight="600">Data</text>
+          <circle cx="245" cy="160" r="24" fill="#388E3C" opacity=".9"/>
+          <text x="245" y="165" text-anchor="middle" fill="white" font-size="9" font-family="Arial" font-weight="600">Deploy</text>
+          <path d="M150 100 L55 160" stroke="#C8922A" stroke-width="1.5" stroke-dasharray="4,3" opacity=".5"/>
+          <path d="M150 100 L150 178" stroke="#C8922A" stroke-width="1.5" stroke-dasharray="4,3" opacity=".5"/>
+          <path d="M150 100 L245 160" stroke="#C8922A" stroke-width="1.5" stroke-dasharray="4,3" opacity=".5"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="method-box">
+      <div class="s-kicker">Méthodologie</div>
+      <h2 class="s-title">Pipeline de développement</h2>
+      <div class="timeline">
+        {% for step in methodology %}
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-title">{{ step.title }}</div>
+            <div class="tl-text">{{ step.desc }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Rigueur scientifique</h3>
+        <p>Chaque décision technique s'appuie sur la littérature scientifique la plus récente en vision par ordinateur et en phytopathologie, garantissant la reproductibilité de nos résultats.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        </div>
+        <h3>Accessibilité</h3>
+        <p>Une interface intuitive permet aux chercheurs, agriculteurs et étudiants d'utiliser les outils d'intelligence artificielle les plus avancés sans nécessiter une expertise technique approfondie.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>Impact sur le terrain</h3>
+        <p>Au-delà de la performance technique, nous mesurons notre succès à l'amélioration concrète des rendements agricoles et à la réduction des traitements phytosanitaires non ciblés.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

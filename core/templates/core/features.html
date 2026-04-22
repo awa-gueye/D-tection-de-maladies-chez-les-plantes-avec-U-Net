@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Fonctionnalités — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="s-container">
+    <div class="s-header-center">
+      <div class="s-kicker centered">Capacités de la plateforme</div>
+      <h2 class="s-title">Une suite complète d'outils de diagnostic phytosanitaire</h2>
+      <p class="s-sub" style="max-width:640px;margin-left:auto;margin-right:auto">
+        PhytoScan AI couvre tout le cycle du diagnostic foliaire, de l'acquisition d'images à l'interprétation des résultats, en passant par la segmentation pixel-précise et l'analyse statistique historique.
+      </p>
+    </div>
+
+    <div class="feat-hero">
+      <div>
+        <div class="feat-hero-n">94,3%</div>
+        <div class="feat-hero-l">Précision globale</div>
+      </div>
+      <div>
+        <div class="feat-hero-n">0,912</div>
+        <div class="feat-hero-l">Score IoU moyen</div>
+      </div>
+      <div>
+        <div class="feat-hero-n">&lt; 10s</div>
+        <div class="feat-hero-l">Temps de diagnostic</div>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      {% for f in features %}
+        <div class="card">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24">
+              {% if f.icon == 'shield' %}<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              {% elif f.icon == 'activity' %}<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              {% elif f.icon == 'grid' %}<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+              {% elif f.icon == 'search' %}<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              {% elif f.icon == 'chat' %}<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              {% elif f.icon == 'file' %}<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              {% elif f.icon == 'api' %}<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              {% elif f.icon == 'users' %}<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              {% elif f.icon == 'alert' %}<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              {% endif %}
+            </svg>
+          </div>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.desc }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

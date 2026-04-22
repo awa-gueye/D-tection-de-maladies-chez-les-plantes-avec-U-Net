@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}FAQ — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="s-container">
+    <div class="s-header-center">
+      <div class="s-kicker centered">Questions fréquentes</div>
+      <h2 class="s-title">Tout ce que vous devez savoir</h2>
+      <p class="s-sub" style="max-width:560px;margin-left:auto;margin-right:auto">
+        Retrouvez ci-dessous les réponses aux questions les plus couramment posées sur PhytoScan AI, le dataset PlantVillage et l'architecture U-Net.
+      </p>
+    </div>
+
+    <div class="faq-list">
+      {% for item in faq_items %}
+        <div class="faq-item">
+          <button class="faq-q" type="button">
+            <span>{{ item.q }}</span>
+            <span class="faq-icon">
+              <svg viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </span>
+          </button>
+          <div class="faq-a">{{ item.a }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

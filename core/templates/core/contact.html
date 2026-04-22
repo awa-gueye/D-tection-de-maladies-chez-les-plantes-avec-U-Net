@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Contact — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+
+<section class="contact-hero">
+  <div class="s-kicker" style="color:#C8922A">Nous joindre</div>
+  <h2 class="contact-hero-title">Parlons de votre projet agricole</h2>
+  <p class="contact-hero-desc">
+    Question technique, demande de collaboration scientifique, rapport de bug ou intégration API : notre équipe vous répond sous vingt-quatre heures.
+  </p>
+</section>
+
+<section class="cinfo-grid">
+  <div class="cinfo-card">
+    <div class="cinfo-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+    </div>
+    <div>
+      <div class="cinfo-label">E-mail</div>
+      <div class="cinfo-val">phytoscan@contact.com</div>
+      <div class="cinfo-sub">Réponse sous 24 h</div>
+    </div>
+  </div>
+  <div class="cinfo-card">
+    <div class="cinfo-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+    </div>
+    <div>
+      <div class="cinfo-label">Localisation</div>
+      <div class="cinfo-val">Dakar, Sénégal</div>
+      <div class="cinfo-sub">Afrique de l'Ouest</div>
+    </div>
+  </div>
+  <div class="cinfo-card">
+    <div class="cinfo-icon">
+      <svg viewBox="0 0 24 24">
+        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7"/>
+      </svg>
+    </div>
+    <div>
+      <div class="cinfo-label">Dataset source</div>
+      <div class="cinfo-val">PlantVillage · Kaggle</div>
+      <div class="cinfo-sub">54 305 images annotées</div>
+    </div>
+  </div>
+</section>
+
+<section class="contact-form-wrap">
+  <div class="s-container">
+    <div class="s-kicker">Formulaire de contact</div>
+    <h2 class="s-title">Envoyez-nous un message</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'success' }}" style="max-width:800px;margin-top:1.5rem">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" class="contact-form">
+      {% csrf_token %}
+      <div>
+        <label for="{{ form.name.id_for_label }}">Nom complet *</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+      </div>
+      <div>
+        <label for="{{ form.email.id_for_label }}">E-mail *</label>
+        {{ form.email }}
+        {{ form.email.errors }}
+      </div>
+      <div>
+        <label for="{{ form.organization.id_for_label }}">Organisation</label>
+        {{ form.organization }}
+        {{ form.organization.errors }}
+      </div>
+      <div>
+        <label for="{{ form.subject.id_for_label }}">Objet</label>
+        {{ form.subject }}
+        {{ form.subject.errors }}
+      </div>
+      <div class="form-full">
+        <label for="{{ form.message.id_for_label }}">Message *</label>
+        {{ form.message }}
+        {{ form.message.errors }}
+      </div>
+      <div class="form-submit-wrap">
+        <button type="submit" class="btn btn-primary btn-lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+          Envoyer le message
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

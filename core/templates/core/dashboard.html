@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="s-kicker">Tableau de bord analytique</div>
+  <h2 class="s-title">Vue d'ensemble des performances du modèle</h2>
+  <p class="page-header-desc">
+    Métriques d'entraînement détaillées et historique complet des analyses effectuées par la plateforme.
+  </p>
+</section>
+
+<section class="section">
+  <div class="s-container">
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-l">Total analyses</div>
+        <div class="kpi-v">{{ metrics.total_analyses }}</div>
+        <div class="kpi-d">+23 aujourd'hui</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-l">Précision globale</div>
+        <div class="kpi-v">{{ metrics.precision }}</div>
+        <div class="kpi-d">+0,8% vs v1</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-l">Maladies détectées</div>
+        <div class="kpi-v">{{ metrics.diseases_detected }}</div>
+        <div class="kpi-d down">25% des analyses</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-l">Score IoU moyen</div>
+        <div class="kpi-v">{{ metrics.iou_score }}</div>
+        <div class="kpi-d">Excellent</div>
+      </div>
+    </div>
+
+    <div class="dash-charts">
+      <div class="chart-card">
+        <div class="chart-title">Courbes d'entraînement (IoU)</div>
+        <svg viewBox="0 0 400 240" style="width:100%;height:auto">
+          <!-- Grid -->
+          <line x1="40" y1="40" x2="40" y2="200" stroke="#E8E6DF" stroke-width="1"/>
+          <line x1="40" y1="200" x2="380" y2="200" stroke="#E8E6DF" stroke-width="1"/>
+          <line x1="40" y1="100" x2="380" y2="100" stroke="#F4F3EE" stroke-width="1"/>
+          <line x1="40" y1="150" x2="380" y2="150" stroke="#F4F3EE" stroke-width="1"/>
+          <!-- Axes labels -->
+          <text x="15" y="45" font-size="9" font-family="Arial" fill="#7A7568">1.0</text>
+          <text x="15" y="105" font-size="9" font-family="Arial" fill="#7A7568">0.8</text>
+          <text x="15" y="155" font-size="9" font-family="Arial" fill="#7A7568">0.6</text>
+          <text x="15" y="205" font-size="9" font-family="Arial" fill="#7A7568">0.4</text>
+          <!-- Train curve -->
+          <path d="M 40 180 Q 80 140, 120 100 T 200 70 T 280 55 T 380 48"
+                stroke="#1B5E20" stroke-width="2.5" fill="none"/>
+          <!-- Validation curve -->
+          <path d="M 40 185 Q 80 150, 120 115 T 200 85 T 280 68 T 380 62"
+                stroke="#C8922A" stroke-width="2.5" fill="none" stroke-dasharray="5,3"/>
+          <!-- Legend -->
+          <line x1="260" y1="222" x2="280" y2="222" stroke="#1B5E20" stroke-width="2.5"/>
+          <text x="285" y="226" font-size="10" font-family="Arial" fill="#1C1B17">Train</text>
+          <line x1="320" y1="222" x2="340" y2="222" stroke="#C8922A" stroke-width="2.5" stroke-dasharray="5,3"/>
+          <text x="345" y="226" font-size="10" font-family="Arial" fill="#1C1B17">Validation</text>
+          <!-- X labels -->
+          <text x="40" y="218" font-size="9" font-family="Arial" fill="#7A7568">0</text>
+          <text x="210" y="218" font-size="9" font-family="Arial" fill="#7A7568">25</text>
+          <text x="375" y="218" font-size="9" font-family="Arial" fill="#7A7568">50</text>
+        </svg>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">Distribution moyenne des classes</div>
+        <svg viewBox="0 0 300 240" style="width:100%;height:auto">
+          <!-- Donut chart 58% / 25% / 17% -->
+          <!-- Green arc : 0 to 208.8deg (58% of 360) -->
+          <circle cx="150" cy="120" r="65" fill="none" stroke="#2E7D32" stroke-width="40"
+                  stroke-dasharray="236.6 408.4" transform="rotate(-90 150 120)"/>
+          <!-- Red arc : 208.8 to 298.8deg (25% of 360 = 90deg) -->
+          <circle cx="150" cy="120" r="65" fill="none" stroke="#B71C1C" stroke-width="40"
+                  stroke-dasharray="102 408.4" stroke-dashoffset="-236.6" transform="rotate(-90 150 120)"/>
+          <!-- Gray arc : 298.8 to 360 (17%) -->
+          <circle cx="150" cy="120" r="65" fill="none" stroke="#9E9E9E" stroke-width="40"
+                  stroke-dasharray="69.4 408.4" stroke-dashoffset="-338.6" transform="rotate(-90 150 120)"/>
+          <text x="150" y="125" text-anchor="middle" font-size="22" font-family="Times New Roman" font-weight="700" fill="#1B5E20">58%</text>
+          <!-- Legend -->
+          <rect x="30" y="210" width="12" height="12" fill="#2E7D32"/>
+          <text x="47" y="220" font-size="10" font-family="Arial" fill="#1C1B17">Sain 58%</text>
+          <rect x="115" y="210" width="12" height="12" fill="#B71C1C"/>
+          <text x="132" y="220" font-size="10" font-family="Arial" fill="#1C1B17">Malade 25%</text>
+          <rect x="205" y="210" width="12" height="12" fill="#9E9E9E"/>
+          <text x="222" y="220" font-size="10" font-family="Arial" fill="#1C1B17">Fond 17%</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Score IoU par classe de maladie</div>
+      <div class="bar-chart">
+        {% for c in class_performance %}
+          <div class="bar-chart-item">
+            <div class="bar {% if c.iou < 0.9 %}mid{% endif %}" style="height:{% widthratio c.iou 1 100 %}%">
+              <span class="bar-value">{{ c.iou|stringformat:".3f" }}</span>
+            </div>
+            <div class="bar-label">{{ c.name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <h3 class="sect-title">Métriques détaillées par classe</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Métrique</th><th>Global</th><th>Saine</th><th>Malade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in detailed_metrics %}
+          <tr>
+            <td><strong>{{ m.name }}</strong></td>
+            <td>{{ m.global }}</td>
+            <td>{{ m.healthy }}</td>
+            <td>{{ m.diseased }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h3 class="sect-title">Historique des dernières analyses</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Fichier</th><th>Statut</th><th>Confiance</th><th>Diagnostic</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in recent_analyses %}
+          <tr>
+            <td><code>{{ a.file }}</code></td>
+            <td>
+              {% if a.status == 'Malade' %}
+                <span class="badge badge-bad">{{ a.status }}</span>
+              {% else %}
+                <span class="badge badge-ok">{{ a.status }}</span>
+              {% endif %}
+            </td>
+            <td>{{ a.confidence }}</td>
+            <td>{{ a.diagnosis }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</section>
+
+<style>
+.badge { display:inline-block;padding:.3rem .8rem;border-radius:20px;font-family:Arial;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+.badge-ok { background:var(--g100); color:var(--g800); }
+.badge-bad { background:#FFEBEE; color:var(--danger); }
+code { background:var(--iv2); padding:.15rem .4rem; border-radius:4px; font-family:'Courier New',monospace; font-size:.85em; }
+</style>
+
+{% endblock %}

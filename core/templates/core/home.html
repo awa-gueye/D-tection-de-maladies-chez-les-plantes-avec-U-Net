@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ SITE_NAME }} — Détection de maladies des plantes par IA{% endblock %}
+
+{% block content %}
+
+{# ═══════════ SLIDER HERO ═══════════ #}
+<section class="slider-wrap">
+  {% for s in slider %}
+    <div class="slide {% if forloop.first %}active{% endif %}" style="{% if s.bg %}background-image:linear-gradient(110deg,rgba(10,46,13,.6),rgba(10,46,13,.2)),url('{% static 'img/' %}{{ s.bg }}');{% else %}background:{{ s.grad }};{% endif %}">
+      <div class="slide-overlay"></div>
+      <div class="slide-body">
+        <div class="slide-tag">{{ s.tag }}</div>
+        <h1 class="slide-title">{{ s.title }}</h1>
+        <p class="slide-desc">{{ s.desc }}</p>
+        <div class="slide-actions">
+          {% for b in s.buttons %}
+            <a href="{{ b.url }}" class="btn {{ b.cls }} btn-lg">{{ b.label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  <div class="slider-dots">
+    {% for s in slider %}
+      <span class="slider-dot {% if forloop.first %}active{% endif %}" data-i="{{ forloop.counter0 }}"></span>
+    {% endfor %}
+  </div>
+</section>
+
+{# ═══════════ STATS RIBBON ═══════════ #}
+<section class="stats-ribbon">
+  {% for stat in stats %}
+    <div class="stat">
+      <div class="stat-n">{{ stat.value }}</div>
+      <div class="stat-l">{{ stat.label }}</div>
+    </div>
+  {% endfor %}
+</section>
+
+{# ═══════════ MISSION ═══════════ #}
+<section class="section">
+  <div class="s-container">
+    <div class="mission-grid">
+      <div class="mission-text">
+        <div class="s-kicker">Notre mission</div>
+        <h2 class="s-title">L'intelligence artificielle au service de l'agriculture de précision</h2>
+        <p>Chaque année, les maladies foliaires provoquent entre 20 et 40% de pertes dans les rendements agricoles mondiaux selon la FAO. Détectées suffisamment tôt, la majorité de ces infections peuvent être traitées efficacement par des interventions ciblées, évitant ainsi le recours massif aux produits phytosanitaires.</p>
+        <p>PhytoScan AI met la puissance du deep learning au service de cette détection précoce. Notre plateforme exploite une architecture U-Net, un réseau de neurones convolutif initialement conçu pour la segmentation d'images biomédicales, entraînée sur le dataset PlantVillage de Kaggle pour identifier avec précision les zones infectées au niveau du pixel.</p>
+        <div class="mission-stats">
+          <div class="mini-stat"><div class="mini-stat-v">14</div><div class="mini-stat-l">Espèces</div></div>
+          <div class="mini-stat"><div class="mini-stat-v">38</div><div class="mini-stat-l">Classes</div></div>
+          <div class="mini-stat"><div class="mini-stat-v">50</div><div class="mini-stat-l">Époques</div></div>
+        </div>
+        <a href="{% url 'detection:index' %}" class="btn btn-primary btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Analyser une feuille
+        </a>
+      </div>
+      <div class="unet-frame">
+        <svg viewBox="0 0 400 230" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <rect x="8" y="90" width="44" height="52" rx="7" fill="#1B5E20" opacity=".9"/>
+          <text x="30" y="120" text-anchor="middle" fill="white" font-size="8" font-family="Arial">Enc1</text>
+          <rect x="58" y="76" width="44" height="80" rx="7" fill="#2E7D32" opacity=".9"/>
+          <text x="80" y="120" text-anchor="middle" fill="white" font-size="8" font-family="Arial">Enc2</text>
+          <rect x="108" y="58" width="44" height="116" rx="7" fill="#388E3C" opacity=".9"/>
+          <text x="130" y="120" text-anchor="middle" fill="white" font-size="8" font-family="Arial">Enc3</text>
+          <rect x="162" y="36" width="76" height="160" rx="9" fill="#C8922A" opacity=".95"/>
+          <text x="200" y="112" text-anchor="middle" fill="white" font-size="9" font-family="Arial" font-weight="600">Bottle</text>
+          <text x="200" y="126" text-anchor="middle" fill="white" font-size="9" font-family="Arial" font-weight="600">neck</text>
+          <rect x="248" y="58" width="44" height="116" rx="7" fill="#388E3C" opacity=".9"/>
+          <text x="270" y="120" text-anchor="middle" fill="white" font-size="8" font-family="Arial">Dec3</text>
+          <rect x="298" y="76" width="44" height="80" rx="7" fill="#2E7D32" opacity=".9"/>
+          <text x="320" y="120" text-anchor="middle" fill="white" font-size="8" font-family="Arial">Dec2</text>
+          <rect x="348" y="90" width="44" height="52" rx="7" fill="#1B5E20" opacity=".9"/>
+          <text x="370" y="120" text-anchor="middle" fill="white" font-size="8" font-family="Arial">Dec1</text>
+          <path d="M52 90 C52 32 352 32 352 90" stroke="#C8922A" stroke-width="1.8" fill="none" stroke-dasharray="6,3" opacity=".8"/>
+          <path d="M102 76 C102 16 302 16 302 76" stroke="#C8922A" stroke-width="1.5" fill="none" stroke-dasharray="5,3" opacity=".6"/>
+          <path d="M152 58 C152 2 252 2 252 58" stroke="#C8922A" stroke-width="1.5" fill="none" stroke-dasharray="5,3" opacity=".45"/>
+        </svg>
+        <div class="unet-caption">Encodeur — Bottleneck — Décodeur avec skip connections</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ═══════════ DATASET PLANTVILLAGE ═══════════ #}
+<section class="section section-alt">
+  <div class="s-container">
+    <div class="s-header-center">
+      <div class="s-kicker centered">Dataset PlantVillage</div>
+      <h2 class="s-title">La référence scientifique en phytopathologie</h2>
+      <p class="s-sub" style="max-width:680px;margin-left:auto;margin-right:auto">
+        Compilé initialement par Hughes et Salathé en 2015 à la Penn State University, puis enrichi et maintenu par la communauté Kaggle, le dataset PlantVillage rassemble 54 305 images de feuilles capturées en conditions contrôlées.
+      </p>
+    </div>
+    <div class="dataset-tiles">
+      <div class="dataset-tile"><div class="dataset-tile-v">54 305</div><div class="dataset-tile-l">Images totales</div></div>
+      <div class="dataset-tile"><div class="dataset-tile-v">14</div><div class="dataset-tile-l">Espèces couvertes</div></div>
+      <div class="dataset-tile"><div class="dataset-tile-v">38</div><div class="dataset-tile-l">Classes foliaires</div></div>
+      <div class="dataset-tile"><div class="dataset-tile-v">256×256</div><div class="dataset-tile-l">Résolution standard</div></div>
+    </div>
+    <div style="text-align:center">
+      <a href="{{ DATASET_URL }}" target="_blank" rel="noopener" class="kaggle-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        </svg>
+        Consulter le dataset sur Kaggle
+      </a>
+    </div>
+  </div>
+</section>
+
+{# ═══════════ CULTURES SUPPORTÉES ═══════════ #}
+<section class="section">
+  <div class="s-container">
+    <div class="s-header-center">
+      <div class="s-kicker centered">Cultures supportées</div>
+      <h2 class="s-title">Huit espèces stratégiques analysées</h2>
+      <p class="s-sub" style="max-width:560px;margin-left:auto;margin-right:auto">
+        PhytoScan AI couvre les cultures essentielles pour la sécurité alimentaire mondiale, avec un focus sur les maladies les plus fréquentes et dommageables.
+      </p>
+    </div>
+    <div class="plant-grid">
+      {% for p in species|slice:":4" %}
+        <div class="plant-card">
+          <div class="plant-img" style="background:{{ p.color }}">
+            <svg viewBox="0 0 80 80">
+              {% if p.slug == 'tomato' %}<circle cx="40" cy="47" r="26" fill="#E53935" opacity=".9"/><path d="M40 21 Q50 8 62 16 Q52 22 40 21Z" fill="#2E7D32"/><path d="M40 21 Q30 8 18 16 Q28 22 40 21Z" fill="#388E3C"/>
+              {% elif p.slug == 'corn' %}<ellipse cx="40" cy="48" rx="16" ry="26" fill="#F9A825"/><path d="M24 32 Q40 12 56 32" stroke="#33691E" stroke-width="3" fill="none"/>
+              {% elif p.slug == 'potato' %}<ellipse cx="40" cy="50" rx="24" ry="17" fill="#8D6E63"/><ellipse cx="30" cy="38" rx="14" ry="10" fill="#795548"/>
+              {% elif p.slug == 'apple' %}<circle cx="36" cy="47" r="22" fill="#EF5350"/><circle cx="50" cy="47" r="18" fill="#E53935"/><path d="M43 25 Q50 13 60 18 Q52 24 43 25Z" fill="#2E7D32"/>
+              {% endif %}
+            </svg>
+            <div class="plant-caption">{{ p.name }}</div>
+          </div>
+          <div class="plant-info">
+            <h4>{{ p.name }}</h4>
+            <p>{{ p.classes }} classe{{ p.classes|pluralize }} — {{ p.description }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="plant-grid">
+      {% for p in species|slice:"4:" %}
+        <div class="plant-card">
+          <div class="plant-img" style="background:{{ p.color }}">
+            <svg viewBox="0 0 80 80">
+              {% if p.slug == 'grape' %}<circle cx="34" cy="35" r="8" fill="#7B1FA2" opacity=".9"/><circle cx="46" cy="35" r="8" fill="#8E24AA" opacity=".9"/><circle cx="40" cy="47" r="8" fill="#7B1FA2"/><circle cx="28" cy="47" r="8" fill="#6A1B9A" opacity=".8"/><circle cx="52" cy="47" r="8" fill="#6A1B9A" opacity=".8"/>
+              {% elif p.slug == 'pepper' %}<path d="M30 20 Q20 40 25 58 Q35 72 40 72 Q45 72 55 58 Q60 40 50 20 Q45 16 40 18 Q35 16 30 20Z" fill="#E53935"/>
+              {% elif p.slug == 'strawberry' %}<path d="M40 65 Q20 50 20 35 Q20 18 40 18 Q60 18 60 35 Q60 50 40 65Z" fill="#E91E63" opacity=".9"/>
+              {% elif p.slug == 'cherry' %}<circle cx="32" cy="50" r="12" fill="#C2185B"/><circle cx="50" cy="50" r="12" fill="#AD1457"/><path d="M32 38 Q40 20 55 22" stroke="#2E7D32" stroke-width="2" fill="none"/>
+              {% endif %}
+            </svg>
+            <div class="plant-caption">{{ p.name }}</div>
+          </div>
+          <div class="plant-info">
+            <h4>{{ p.name }}</h4>
+            <p>{{ p.classes }} classe{{ p.classes|pluralize }} — {{ p.description }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ═══════════ CTA FINAL ═══════════ #}
+<section class="cta-block">
+  <div class="cta-inner">
+    <div class="cta-tag">Prêt à commencer</div>
+    <h2 class="cta-title">Protégez vos cultures dès aujourd'hui</h2>
+    <p class="cta-desc">Un diagnostic précis en moins de dix secondes. Aucune installation requise, tout se passe dans votre navigateur.</p>
+    <div class="cta-actions">
+      <a href="{% url 'detection:index' %}" class="btn btn-gold btn-lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Démarrer l'analyse
+      </a>
+      <a href="{% url 'core:contact' %}" class="btn btn-outline btn-lg">Nous contacter</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Détection de maladies — {{ SITE_NAME }}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* Styles spécifiques à la page de détection */
+.detection-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  padding: 2rem 5rem;
+}
+.detection-form-box {
+  background: white;
+  border: 1px solid var(--s200);
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: var(--sh-sm);
+}
+.field-label {
+  display: block;
+  font-family: Arial, sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--s600);
+  margin-bottom: .55rem;
+}
+.file-input-wrap {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+.file-input-wrap input[type="file"] {
+  width: 100%;
+  padding: .8rem;
+  border: 1.5px dashed var(--s200);
+  border-radius: 10px;
+  background: var(--iv);
+  font-family: Arial, sans-serif;
+  cursor: pointer;
+}
+.file-input-wrap input[type="file"]:hover {
+  border-color: var(--g800);
+  background: var(--g50);
+}
+.slider-group {
+  margin-bottom: 1.5rem;
+}
+.slider-group .slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .55rem;
+}
+.slider-group input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--s200);
+  outline: none;
+  -webkit-appearance: none;
+}
+.slider-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--g800);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(27, 94, 32, .3);
+}
+.slider-group input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--g800);
+  cursor: pointer;
+  border: none;
+}
+.alpha-value {
+  font-family: 'Times New Roman', serif;
+  font-weight: 700;
+  color: var(--g800);
+  font-size: 1rem;
+}
+.tips-box {
+  margin-top: 1rem;
+  padding: 1.1rem 1.3rem;
+  background: var(--g50);
+  border-left: 3px solid var(--g800);
+  border-radius: 0 10px 10px 0;
+  font-family: Arial, sans-serif;
+  font-size: .88rem;
+  color: var(--s600);
+  line-height: 1.7;
+}
+.tips-box strong {
+  color: var(--g800);
+  display: block;
+  margin-bottom: .4rem;
+  font-family: 'Times New Roman', serif;
+  font-size: 1rem;
+}
+.detection-result {
+  min-height: 280px;
+}
+.result-placeholder {
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--iv2);
+  border-radius: 14px;
+  border: 2px dashed var(--s200);
+  text-align: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+.result-placeholder p {
+  color: var(--s400);
+  font-family: Arial, sans-serif;
+  font-size: .95rem;
+}
+.result-loading {
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+.spinner {
+  width: 44px; height: 44px;
+  border: 3px solid var(--s200);
+  border-top-color: var(--g800);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.result-loading p {
+  font-family: Arial, sans-serif;
+  color: var(--s600);
+}
+.result-box {
+  background: white;
+  border: 1px solid var(--s200);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--sh-sm);
+  animation: scaleIn .4s ease;
+}
+.result-head {
+  background: linear-gradient(135deg, var(--g950), var(--g800));
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+}
+.result-head-title {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.result-body { padding: 1.5rem; }
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.result-stat {
+  padding: 1.2rem;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid;
+}
+.result-stat.healthy { background: var(--g100); border-color: #D4EDDA; }
+.result-stat.diseased { background: #FFEBEE; border-color: #FFCDD2; }
+.result-stat-l {
+  font-family: Arial, sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--s600);
+}
+.result-stat-v {
+  font-family: 'Times New Roman', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-top: .3rem;
+}
+.result-stat.healthy .result-stat-v { color: var(--g800); }
+.result-stat.diseased .result-stat-v { color: var(--danger); }
+.conf-section-title {
+  font-family: Arial, sans-serif;
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--s600);
+  margin-bottom: .9rem;
+}
+.conf-row { margin-bottom: .7rem; }
+.conf-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: Arial, sans-serif;
+  font-size: .88rem;
+  margin-bottom: .3rem;
+}
+.conf-track {
+  height: 8px;
+  background: var(--s200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.conf-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--g800), var(--gold));
+  border-radius: 4px;
+  width: 0;
+  animation: fillBar 1s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes fillBar {
+  from { width: 0; }
+}
+.result-images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.result-img-wrap {
+  text-align: center;
+}
+.result-img-wrap img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--s200);
+}
+.result-img-caption {
+  font-family: Arial, sans-serif;
+  font-size: .78rem;
+  color: var(--s600);
+  margin-top: .4rem;
+  font-weight: 600;
+}
+.badge { display: inline-block; padding: .3rem .85rem; border-radius: 20px; font-family: Arial, sans-serif; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.badge-ok { background: var(--g100); color: var(--g800); }
+.badge-bad { background: #FFEBEE; color: var(--danger); }
+@media (max-width: 1100px) {
+  .detection-layout { grid-template-columns: 1fr; padding: 2rem 2.5rem; }
+}
+@media (max-width: 768px) {
+  .detection-layout { padding: 1.5rem 1.25rem; }
+  .detection-form-box { padding: 1.5rem; }
+  .result-images { grid-template-columns: 1fr; }
+  .result-stats { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="page-header">
+  <div class="s-kicker">Analyse IA · Segmentation U-Net</div>
+  <h2 class="s-title">Détection de maladies foliaires</h2>
+  <p class="page-header-desc">
+    Téléversez une image de feuille et obtenez en quelques secondes une segmentation sémantique complète. Le modèle localise précisément les zones infectées, calcule le pourcentage de surface atteinte, et fournit un niveau de confiance par classe pathologique.
+  </p>
+</section>
+
+<section class="detection-layout">
+  <div class="detection-form-box">
+    <form id="detectionForm" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <label class="field-label" for="imgInput">Image de feuille (JPG, PNG, WEBP)</label>
+      <div class="file-input-wrap">
+        <input type="file" id="imgInput" name="image" accept="image/jpeg,image/png,image/webp" required>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="field-label" style="margin-bottom:0" for="alphaSlider">Transparence du masque</label>
+          <span class="alpha-value" id="alphaValue">0.45</span>
+        </div>
+        <input type="range" id="alphaSlider" name="alpha" min="0.1" max="0.9" step="0.05" value="0.45">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        Lancer l'analyse
+      </button>
+
+      <div class="tips-box">
+        <strong>Conseils pour une analyse optimale</strong>
+        Privilégiez une lumière naturelle avec une feuille bien exposée, centrée dans le cadre et disposée sur un fond neutre. La résolution minimale recommandée est de 512 par 512 pixels pour garantir la meilleure précision de segmentation.
+      </div>
+    </form>
+  </div>
+
+  <div class="detection-result">
+    <div id="resultPlaceholder" class="result-placeholder">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#B5B0A0" stroke-width="1.2" stroke-linecap="round">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      <p>Le résultat de l'analyse apparaîtra ici.</p>
+    </div>
+    <div id="resultWrap" style="display:none"></div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/detection.js' %}"></script>
+{% endblock %}
