@@ -67,7 +67,7 @@ desktop.ini
 *.pt
 *.pth
 *.onnx
-
+.env
 # ── Fichiers système ─────────────────────────────────
 __MACOSX/
 .Spotlight-V100
