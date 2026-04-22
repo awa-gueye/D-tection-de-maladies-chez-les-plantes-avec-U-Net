@@ -1,10 +1,11 @@
 """
 Configuration Django pour PhytoScan AI.
-Fonctionne en développement (DEBUG=True) et en production sur Render (DEBUG=False).
+Compatible développement local (DEBUG=True) et production Render (DEBUG=False).
 """
 from pathlib import Path
 from decouple import config, Csv
 import dj_database_url
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -12,21 +13,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-change-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# Render injecte automatiquement RENDER_EXTERNAL_HOSTNAME
-# On l'utilise pour construire ALLOWED_HOSTS sans configuration manuelle
+# Render injecte RENDER_EXTERNAL_HOSTNAME automatiquement.
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default='')
 
-_allowed = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
-ALLOWED_HOSTS = list(_allowed)
+_base_hosts = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = list(_base_hosts)
 
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Sécurité supplémentaire : accepter tout sous-domaine .onrender.com
+# Accepter tous les sous-domaines .onrender.com en production
+# pour éviter les erreurs 400 dues à un hostname manquant.
 if not DEBUG:
     ALLOWED_HOSTS.append('.onrender.com')
 
-# ── Clé API Groq pour le chatbot ───────────────────────────────────────────
+# ── Clé API Groq (chatbot PhytoBot) ───────────────────────────────────────
 GROQ_API_KEY = config('GROQ_API_KEY', default='')
 
 # ── Applications ───────────────────────────────────────────────────────────
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',   # WhiteNoise gère le static en dev aussi
     'django.contrib.staticfiles',
     'core',
     'detection',
@@ -44,7 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Doit être en 2e position
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -111,12 +113,20 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# CompressedStaticFilesStorage (sans Manifest) : plus robuste sur Render.
-# CompressedManifestStaticFilesStorage peut planter si collectstatic
-# n'a pas généré le fichier staticfiles.json correctement.
+# CompressedStaticFilesStorage : compression gzip automatique, sans manifest.
+# Plus robuste que CompressedManifestStaticFilesStorage sur Render car
+# il ne dépend pas du fichier staticfiles.json.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# ── Fichiers média ─────────────────────────────────────────────────────────
+# WhiteNoise peut chercher les fichiers dans STATICFILES_DIRS directement,
+# même sans avoir lancé collectstatic. Utile en développement et en
+# cas de problème avec STATIC_ROOT en production.
+WHITENOISE_USE_FINDERS = True
+
+# Cache de 1 an pour les fichiers statiques en production (bonne pratique CDN)
+WHITENOISE_MAX_AGE = 31536000
+
+# ── Fichiers média (uploads) ───────────────────────────────────────────────
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -126,17 +136,12 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ── Sécurité HTTPS (production uniquement) ─────────────────────────────────
+# ── Sécurité HTTPS (production Render uniquement) ──────────────────────────
 if not DEBUG:
-    # Render termine le SSL au niveau du proxy et transmet les requêtes
-    # à Django en HTTP avec ce header. NE PAS activer SECURE_SSL_REDIRECT
-    # car Render gère les redirections HTTPS lui-même.
+    # Render termine le SSL au niveau du proxy et transmet en HTTP interne.
+    # SECURE_SSL_REDIRECT est intentionnellement DÉSACTIVÉ pour éviter
+    # la boucle de redirection infinie sur Render.
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-    # SECURE_SSL_REDIRECT = True  <-- DÉSACTIVÉ intentionnellement sur Render
-    # Activer ce paramètre provoquerait une boucle de redirection infinie
-    # car Django recevrait toujours des requêtes HTTP en interne.
-
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
