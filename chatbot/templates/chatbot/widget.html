@@ -1,3 +1,4 @@
+{% load static %}
 {# Widget chatbot flottant — inclus dans base.html #}
 <button class="chat-fab" id="chatFab" aria-label="Ouvrir le chatbot">
   <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -10,7 +11,10 @@
   <!-- En-tête -->
   <div class="chat-head">
     <div class="chat-avatar">
-      <svg viewBox="0 0 24 24">
+      <img src="{% static 'img/chatbot_logo.png' %}" alt="PhytoBot" width="22" height="22"
+           style="border-radius:50%"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <svg viewBox="0 0 24 24" style="display:none">
         <circle cx="12" cy="8" r="4"/>
         <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
       </svg>

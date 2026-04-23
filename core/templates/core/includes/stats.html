@@ -1,0 +1,9 @@
+{# Bandeau de statistiques #}
+<section class="stats-ribbon">
+  {% for stat in stats %}
+    <div class="stat">
+      <div class="stat-n">{{ stat.value }}</div>
+      <div class="stat-l">{{ stat.label }}</div>
+    </div>
+  {% endfor %}
+</section>

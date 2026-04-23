@@ -1,0 +1,73 @@
+{# Section Notre Équipe — carousel automatique avec photos circulaires #}
+{% load static %}
+
+<section class="team-section" id="team">
+  <div class="s-container">
+    <div class="s-header-center">
+      <div class="s-kicker centered">Notre équipe</div>
+      <h2 class="s-title">Des experts passionnés au service de l'agriculture</h2>
+      <p class="s-sub" style="max-width:560px;margin-left:auto;margin-right:auto">
+        Une équipe pluridisciplinaire qui combine expertise en intelligence artificielle, développement web et analyse de données pour lutter contre les maladies des plantes.
+      </p>
+    </div>
+
+    <div class="team-card-wrap">
+      <div class="team-carousel" id="teamCarousel">
+
+        {% for member in team %}
+          <div class="team-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+            <div class="team-photo-wrap">
+              <div class="team-photo-ring"></div>
+              {% if member.image %}
+                <img src="{% static 'img/' %}{{ member.image }}" alt="{{ member.name }}" class="team-photo"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="team-photo-placeholder" style="display:none">
+                  {{ member.name|make_list|first }}{{ member.name|cut:" "|make_list|last }}
+                </div>
+              {% else %}
+                <div class="team-photo-placeholder">
+                  {{ member.name|make_list|first }}
+                </div>
+              {% endif %}
+            </div>
+            <h3 class="team-name">{{ member.name }}</h3>
+            <div class="team-role">{{ member.role }}</div>
+            <div class="team-skills">{{ member.skills }}</div>
+            <p class="team-bio" id="teamBio{{ forloop.counter0 }}">{{ member.bio }}</p>
+            <button class="team-bio-btn" onclick="toggleBio({{ forloop.counter0 }})">
+              Lire la biographie complète
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+          </div>
+        {% endfor %}
+
+        {# Flèches de navigation #}
+        <button class="team-nav team-nav-prev" onclick="teamPrev()" aria-label="Membre précédent">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="team-nav team-nav-next" onclick="teamNext()" aria-label="Membre suivant">
+          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        </button>
+      </div>
+
+      {# Dots indicateurs #}
+      <div class="team-dots" id="teamDots">
+        {% for member in team %}
+          <button class="team-dot {% if forloop.first %}active{% endif %}"
+                  onclick="teamGoTo({{ forloop.counter0 }})" aria-label="Voir {{ member.name }}"></button>
+        {% endfor %}
+      </div>
+
+      {# Lien mail #}
+      <a href="{% url 'core:contact' %}" class="team-mail-link" title="Contacter l'équipe">
+        <svg viewBox="0 0 24 24">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

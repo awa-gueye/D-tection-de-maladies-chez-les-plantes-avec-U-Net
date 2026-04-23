@@ -1,0 +1,25 @@
+{% load static %}
+{# Slider hero avec rotation automatique #}
+<section class="slider-wrap">
+  {% for s in slider %}
+    <div class="slide {% if forloop.first %}active{% endif %}"
+         style="{% if s.bg %}background-image:linear-gradient(110deg,rgba(10,46,13,.6),rgba(10,46,13,.2)),url('{% static 'img/' %}{{ s.bg }}');{% else %}background:{{ s.grad }};{% endif %}">
+      <div class="slide-overlay"></div>
+      <div class="slide-body">
+        <div class="slide-tag">{{ s.tag }}</div>
+        <h1 class="slide-title">{{ s.title }}</h1>
+        <p class="slide-desc">{{ s.desc }}</p>
+        <div class="slide-actions">
+          {% for b in s.buttons %}
+            <a href="{{ b.url }}" class="btn {{ b.cls }} btn-lg">{{ b.label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  <div class="slider-dots">
+    {% for s in slider %}
+      <span class="slider-dot {% if forloop.first %}active{% endif %}" data-i="{{ forloop.counter0 }}"></span>
+    {% endfor %}
+  </div>
+</section>

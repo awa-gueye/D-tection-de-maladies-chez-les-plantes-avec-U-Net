@@ -18,7 +18,10 @@
   <div class="navbar-inner">
     <a href="{% url 'core:home' %}" class="navbar-brand">
       <span class="navbar-logo">
-        <svg viewBox="0 0 36 36" width="24" height="24">
+        <img src="{% static 'img/logo.png' %}" alt="PhytoScan" width="28" height="28"
+             style="border-radius:6px"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <svg viewBox="0 0 36 36" width="24" height="24" style="display:none">
           <path d="M18 4C10 8 6 16 8 24C10 30 14 32 18 32C22 32 26 30 28 24C30 16 26 8 18 4Z" fill="rgba(255,255,255,.92)"/>
           <path d="M18 32C18 32 17 24 20 20C23 16 26 17 28 24C26 30 22 32 18 32Z" fill="white"/>
           <circle cx="18" cy="13" r="2.5" fill="rgba(200,146,42,.95)"/>
