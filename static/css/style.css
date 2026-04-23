@@ -1806,3 +1806,72 @@ textarea.form-control {
   .hero-split-content { padding: 2.5rem 1.25rem; }
   .hero-split-title { font-size: 2.2rem; }
 }
+
+/* Améliorations équipe */
+.team-bio-wrapper {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+.team-bio {
+  max-height: 4.5em; /* 3 lignes ~ 1.5em * 3 */
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out;
+  margin-bottom: 0;
+}
+.team-bio.expanded {
+  max-height: 500px; /* assez grand pour tout le texte */
+}
+.team-bio-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 2px solid var(--g800);
+  color: var(--g800);
+  padding: 0.6rem 1.2rem;
+  border-radius: 40px;
+  font-weight: 600;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+.team-bio-btn:hover {
+  background: var(--g800);
+  color: white;
+  transform: translateY(-2px);
+}
+.team-bio-btn .btn-icon {
+  width: 16px;
+  height: 16px;
+}
+.team-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--g100), var(--g50));
+  font-size: 2.8rem;
+  font-weight: bold;
+  color: var(--g800);
+}
+.team-card-wrap {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: 32px;
+  padding: 2rem 1rem;
+}
+@media (max-width: 768px) {
+  .team-bio-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
+  .team-photo-wrap {
+    width: 140px;
+    height: 140px;
+  }
+  .team-photo, .team-photo-placeholder {
+    width: 140px;
+    height: 140px;
+  }
+  .team-name {
+    font-size: 1.4rem;
+  }
+}
