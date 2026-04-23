@@ -117,78 +117,58 @@ document.addEventListener('DOMContentLoaded', function() {
 // ═════════════════════════════════════════════════════
 // Carousel Équipe — version robuste avec autoplay
 // ═════════════════════════════════════════════════════
+// Carousel Équipe (automatique, un seul membre visible)
 (function() {
   let teamCurrent = 0;
   let teamInterval = null;
-  let teamSlides, teamDots;
-  const AUTOPLAY_DELAY = 8000; // 8 secondes
+  let teamSlides = [], teamDots = [];
+  const AUTOPLAY_DELAY = 8000;
 
   function updateTeamSlide(index) {
-    if (!teamSlides || !teamDots) return;
-    teamSlides.forEach((slide, i) => {
-      slide.classList.toggle('active', i === index);
-    });
-    teamDots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === index);
-    });
+    teamSlides.forEach((s, i) => s.classList.toggle('active', i === index));
+    teamDots.forEach((d, i) => d.classList.toggle('active', i === index));
     teamCurrent = index;
   }
 
   function teamGoTo(index) {
     if (!teamSlides.length) return;
-    let newIndex = (index % teamSlides.length + teamSlides.length) % teamSlides.length;
+    const newIndex = ((index % teamSlides.length) + teamSlides.length) % teamSlides.length;
     updateTeamSlide(newIndex);
     teamResetAutoplay();
   }
 
-  function teamNext() {
-    teamGoTo(teamCurrent + 1);
-  }
-
-  function teamPrev() {
-    teamGoTo(teamCurrent - 1);
-  }
+  window.teamGoTo = teamGoTo;
+  window.teamNext = () => teamGoTo(teamCurrent + 1);
+  window.teamPrev = () => teamGoTo(teamCurrent - 1);
 
   function teamResetAutoplay() {
     if (teamInterval) clearInterval(teamInterval);
-    teamInterval = setInterval(() => {
-      teamGoTo(teamCurrent + 1);
-    }, AUTOPLAY_DELAY);
+    teamInterval = setInterval(() => teamGoTo(teamCurrent + 1), AUTOPLAY_DELAY);
   }
+  window.teamResetAutoplay = teamResetAutoplay;
 
   function stopAutoplay() {
     if (teamInterval) clearInterval(teamInterval);
     teamInterval = null;
   }
 
-  // Exposition globale (nécessaire car les onclick du HTML les appellent)
-  window.teamGoTo = teamGoTo;
-  window.teamNext = teamNext;
-  window.teamPrev = teamPrev;
-
-  // Initialisation
-  document.addEventListener('DOMContentLoaded', function() {
-    teamSlides = document.querySelectorAll('.team-slide');
-    teamDots = document.querySelectorAll('.team-dot');
+  document.addEventListener('DOMContentLoaded', () => {
+    teamSlides = Array.from(document.querySelectorAll('.team-slide'));
+    teamDots = Array.from(document.querySelectorAll('.team-dot'));
     if (teamSlides.length <= 1) return;
 
-    // Sélectionner le slide actif
-    teamSlides.forEach((slide, idx) => {
-      if (slide.classList.contains('active')) teamCurrent = idx;
-    });
+    // Trouver l'index actif
+    teamSlides.forEach((s, i) => { if (s.classList.contains('active')) teamCurrent = i; });
 
-    // Attacher événements aux flèches
     const prevBtn = document.querySelector('.team-nav-prev');
     const nextBtn = document.querySelector('.team-nav-next');
-    if (prevBtn) prevBtn.addEventListener('click', teamPrev);
-    if (nextBtn) nextBtn.addEventListener('click', teamNext);
+    if (prevBtn) prevBtn.addEventListener('click', window.teamPrev);
+    if (nextBtn) nextBtn.addEventListener('click', window.teamNext);
 
-    // Attacher événements aux dots
     teamDots.forEach((dot, idx) => {
       dot.addEventListener('click', () => teamGoTo(idx));
     });
 
-    // Autoplay avec pause au survol
     const carousel = document.getElementById('teamCarousel');
     if (carousel) {
       carousel.addEventListener('mouseenter', stopAutoplay);
@@ -198,38 +178,26 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 })();
 
-// Gestion des biographies (toggle + icône adaptée)
+// Toggle biographie
 function toggleBio(bioId) {
-  const bioPara = document.getElementById(`teamBio${bioId}`);
-  if (!bioPara) return;
-  const btn = bioPara.closest('.team-slide').querySelector('.team-bio-btn');
-  const isExpanded = bioPara.classList.contains('expanded');
-  
-  if (!isExpanded) {
-    bioPara.classList.add('expanded');
-    bioPara.style.maxHeight = bioPara.scrollHeight + 'px';
-    btn.innerHTML = `Réduire la biographie
-      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>`;
-  } else {
-    bioPara.classList.remove('expanded');
-    bioPara.style.maxHeight = '';
-    btn.innerHTML = `Lire la biographie complète
-      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="5" y1="12" x2="19" y2="12"/>
-        <polyline points="12 5 19 12 12 19"/>
-      </svg>`;
+  const bioEl = document.getElementById(`teamBio${bioId}`);
+  if (!bioEl) return;
+  const isExpanded = bioEl.classList.contains('expanded');
+  bioEl.classList.toggle('expanded');
+  const btn = bioEl.closest('.team-slide')?.querySelector('.team-bio-btn');
+  if (btn) {
+    btn.innerHTML = isExpanded ? `Lire la biographie complète <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>` : `Réduire la biographie <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   }
 }
 
-// Attacher les événements aux boutons de bio après le chargement du DOM
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.team-bio-btn').forEach(btn => {
     const bioId = btn.getAttribute('data-bio-id');
     if (bioId !== null) {
-      btn.removeEventListener('click', () => toggleBio(bioId));
-      btn.addEventListener('click', () => toggleBio(parseInt(bioId)));
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleBio(parseInt(bioId));
+      });
     }
   });
 });

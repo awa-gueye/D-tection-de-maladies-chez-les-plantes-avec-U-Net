@@ -19,16 +19,16 @@
               <div class="team-photo-ring"></div>
               {% if member.image %}
                 <img src="{% static 'img/' %}{{ member.image }}"
-                     alt="Photo de {{ member.name }}"
+                     alt="{{ member.name }}"
                      class="team-photo"
                      loading="lazy"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="team-photo-placeholder" style="display: none;">
-                  {{ member.name|slice:":1" }}{{ member.name|slice:"-1:" }}
+                  {{ member.name.0 }}{{ member.name.split.1.0|default:'' }}
                 </div>
               {% else %}
                 <div class="team-photo-placeholder">
-                  {{ member.name|slice:":1" }}{{ member.name.split|last|slice:":1"|default:"" }}
+                  {{ member.name.0 }}{{ member.name.split.1.0|default:'' }}
                 </div>
               {% endif %}
             </div>
@@ -40,7 +40,7 @@
             </div>
             <button class="team-bio-btn" data-bio-id="{{ forloop.counter0 }}">
               Lire la biographie complète
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                 <line x1="5" y1="12" x2="19" y2="12"/>
                 <polyline points="12 5 19 12 12 19"/>
               </svg>
@@ -54,24 +54,22 @@
           </div>
         {% endfor %}
 
-        <button class="team-nav team-nav-prev" aria-label="Membre précédent">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        <button class="team-nav team-nav-prev" aria-label="Précédent">
+          <svg viewBox="0 0 24 24" width="24" height="24"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <button class="team-nav team-nav-next" aria-label="Membre suivant">
-          <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+        <button class="team-nav team-nav-next" aria-label="Suivant">
+          <svg viewBox="0 0 24 24" width="24" height="24"><polyline points="9 6 15 12 9 18"/></svg>
         </button>
       </div>
 
       <div class="team-dots" id="teamDots">
         {% for member in team %}
-          <button class="team-dot {% if forloop.first %}active{% endif %}"
-                  data-dot-index="{{ forloop.counter0 }}"
-                  aria-label="Voir {{ member.name }}"></button>
+          <button class="team-dot {% if forloop.first %}active{% endif %}" data-dot-index="{{ forloop.counter0 }}" aria-label="Voir {{ member.name }}"></button>
         {% endfor %}
       </div>
 
       <a href="{% url 'core:contact' %}" class="team-mail-link" title="Contacter l'équipe">
-        <svg viewBox="0 0 24 24">
+        <svg viewBox="0 0 24 24" width="20" height="20">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
           <polyline points="22,6 12,13 2,6"/>
         </svg>
