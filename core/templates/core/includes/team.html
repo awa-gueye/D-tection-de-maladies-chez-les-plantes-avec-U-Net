@@ -1,5 +1,5 @@
 {% load static %}
-{# Section Notre Équipe — carousel avec styles embarqués pour fiabilité #}
+{# Section Notre Équipe — carousel + modal biographie #}
 
 <style>
 /* ═══ Équipe — styles embarqués ═══ */
@@ -29,12 +29,15 @@
 }
 
 /* Carousel */
-.ps-team-slides { position:relative; min-height:480px; }
+.ps-team-slides { position:relative; min-height:460px; }
 .ps-team-slide {
   display:none; flex-direction:column; align-items:center;
-  text-align:center; animation:psFadeSlide .5s ease;
+  text-align:center;
 }
-.ps-team-slide.ps-active { display:flex; }
+.ps-team-slide.ps-active {
+  display:flex;
+  animation:psFadeSlide .5s ease;
+}
 @keyframes psFadeSlide {
   from { opacity:0; transform:translateY(16px) scale(.97); }
   to   { opacity:1; transform:translateY(0) scale(1); }
@@ -66,7 +69,7 @@
   font-weight:700; color:#1B5E20;
 }
 
-/* Texte membre */
+/* Texte */
 .ps-team-name {
   font-family:'Times New Roman',serif; font-size:1.9rem;
   font-weight:700; color:#1C1B17; margin-bottom:.35rem;
@@ -77,11 +80,13 @@
 }
 .ps-team-skills {
   font-family:Arial,sans-serif; font-size:.9rem; color:#7A7568;
-  font-style:italic; margin-bottom:1rem;
+  font-style:italic; margin-bottom:1.25rem;
 }
-.ps-team-bio {
+.ps-team-bio-preview {
   font-family:Arial,sans-serif; font-size:.92rem; color:#7A7568;
   line-height:1.75; max-width:500px; margin:0 auto 1.5rem;
+  display:-webkit-box; -webkit-line-clamp:2;
+  -webkit-box-orient:vertical; overflow:hidden;
 }
 
 /* Bouton biographie */
@@ -135,7 +140,7 @@
   background:#1B5E20; width:28px; border-radius:5px;
 }
 
-/* Icône mail */
+/* Mail link */
 .ps-team-mail {
   display:flex; width:40px; height:40px; border-radius:50%;
   background:#F4F3EE; align-items:center; justify-content:center;
@@ -147,6 +152,91 @@
 }
 .ps-team-mail svg {
   width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;
+}
+
+/* ═══ MODAL BIOGRAPHIE ═══ */
+.ps-bio-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(10,46,13,.6); backdrop-filter:blur(8px);
+  z-index:100000; align-items:center; justify-content:center;
+  padding:2rem;
+}
+.ps-bio-overlay.ps-open {
+  display:flex;
+  animation:psOverlayIn .3s ease;
+}
+@keyframes psOverlayIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+.ps-bio-modal {
+  background:white; border-radius:24px;
+  max-width:560px; width:100%;
+  max-height:85vh; overflow-y:auto;
+  box-shadow:0 24px 60px rgba(10,46,13,.35);
+  animation:psModalIn .35s ease;
+  position:relative;
+}
+@keyframes psModalIn {
+  from { opacity:0; transform:translateY(30px) scale(.95); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+
+/* Header du modal avec fond dégradé */
+.ps-bio-modal-head {
+  background:linear-gradient(135deg,#0A2E0D,#1B5E20 60%,#2E7D32);
+  padding:2.5rem 2rem 1.5rem; text-align:center;
+  border-radius:24px 24px 0 0; position:relative;
+}
+.ps-bio-modal-close {
+  position:absolute; top:1rem; right:1rem;
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,.15); border:none;
+  color:white; cursor:pointer; font-size:1.2rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .2s;
+}
+.ps-bio-modal-close:hover {
+  background:rgba(255,255,255,.3);
+}
+.ps-bio-modal-photo {
+  width:120px; height:120px; border-radius:50%; object-fit:cover;
+  border:4px solid rgba(255,255,255,.3);
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  margin:0 auto 1rem; display:block;
+}
+.ps-bio-modal-initials {
+  width:120px; height:120px; border-radius:50%;
+  border:4px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.15);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Times New Roman',serif; font-size:2.2rem;
+  font-weight:700; color:white; margin:0 auto 1rem;
+}
+.ps-bio-modal-name {
+  font-family:'Times New Roman',serif; font-size:1.7rem;
+  font-weight:700; color:white; margin-bottom:.3rem;
+}
+.ps-bio-modal-role {
+  font-family:Arial,sans-serif; font-size:.95rem;
+  font-weight:600; color:#C8922A;
+}
+
+/* Corps du modal */
+.ps-bio-modal-body {
+  padding:2rem;
+}
+.ps-bio-modal-skills {
+  display:inline-block;
+  padding:.4rem 1rem; border-radius:20px;
+  background:#E8F5E9; color:#1B5E20;
+  font-family:Arial,sans-serif; font-size:.82rem;
+  font-weight:700; margin-bottom:1.25rem;
+}
+.ps-bio-modal-text {
+  font-family:Arial,sans-serif; font-size:.98rem;
+  color:#7A7568; line-height:1.85;
 }
 
 @media (max-width:1100px) {
@@ -161,7 +251,11 @@
   .ps-team-name { font-size:1.5rem; }
   .ps-team-card { padding:2rem 1.25rem 1.5rem; }
   .ps-team-nav { display:none; }
-  .ps-team-slides { min-height:420px; }
+  .ps-team-slides { min-height:400px; }
+  .ps-bio-overlay { padding:1rem; }
+  .ps-bio-modal { max-width:100%; }
+  .ps-bio-modal-head { padding:2rem 1.5rem 1.25rem; }
+  .ps-bio-modal-body { padding:1.5rem; }
 }
 </style>
 
@@ -179,30 +273,29 @@
     <div class="ps-team-slides" id="psTeamSlides">
 
       {% for member in team %}
-      <div class="ps-team-slide {% if forloop.first %}ps-active{% endif %}" data-idx="{{ forloop.counter0 }}">
+      <div class="ps-team-slide {% if forloop.first %}ps-active{% endif %}">
         <div class="ps-team-photo-wrap">
           <div class="ps-team-ring"></div>
           <img src="{% static 'img/' %}{{ member.image }}"
-               alt="{{ member.name }}"
-               class="ps-team-photo"
+               alt="{{ member.name }}" class="ps-team-photo"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="ps-team-initials" style="display:none">{{ member.initials }}</div>
         </div>
         <h3 class="ps-team-name">{{ member.name }}</h3>
         <div class="ps-team-role">{{ member.role }}</div>
         <div class="ps-team-skills">{{ member.skills }}</div>
-        <p class="ps-team-bio">{{ member.bio }}</p>
-        <button class="ps-team-btn" onclick="this.previousElementSibling.style.webkitLineClamp=this.previousElementSibling.style.webkitLineClamp?'':'unset';this.innerHTML=this.previousElementSibling.style.webkitLineClamp?'Lire la biographie complète <svg viewBox=&quot;0 0 24 24&quot;><line x1=&quot;5&quot; y1=&quot;12&quot; x2=&quot;19&quot; y2=&quot;12&quot;/><polyline points=&quot;12 5 19 12 12 19&quot;/></svg>':'Réduire <svg viewBox=&quot;0 0 24 24&quot;><polyline points=&quot;18 15 12 9 6 15&quot;/></svg>'">
+        <p class="ps-team-bio-preview">{{ member.bio }}</p>
+        <button class="ps-team-btn" data-bio-idx="{{ forloop.counter0 }}">
           Lire la biographie complète
           <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
       </div>
       {% endfor %}
 
-      <button class="ps-team-nav ps-team-prev" onclick="psTeamGo(psTeamIdx-1)" aria-label="Précédent">
+      <button class="ps-team-nav ps-team-prev" id="psTeamPrev" aria-label="Précédent">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <button class="ps-team-nav ps-team-next" onclick="psTeamGo(psTeamIdx+1)" aria-label="Suivant">
+      <button class="ps-team-nav ps-team-next" id="psTeamNext" aria-label="Suivant">
         <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
       </button>
     </div>
@@ -210,7 +303,7 @@
     <div class="ps-team-dots" id="psTeamDots">
       {% for member in team %}
       <button class="ps-team-dot {% if forloop.first %}ps-active{% endif %}"
-              onclick="psTeamGo({{ forloop.counter0 }})" aria-label="{{ member.name }}"></button>
+              data-dot-idx="{{ forloop.counter0 }}" aria-label="{{ member.name }}"></button>
       {% endfor %}
     </div>
 
@@ -223,39 +316,139 @@
   </div>
 </section>
 
+{# ═══ MODAL BIOGRAPHIE — une seule instance, contenu injecté par JS ═══ #}
+<div class="ps-bio-overlay" id="psBioOverlay">
+  <div class="ps-bio-modal" id="psBioModal">
+    <div class="ps-bio-modal-head">
+      <button class="ps-bio-modal-close" id="psBioClose" aria-label="Fermer">&times;</button>
+      <img src="" alt="" class="ps-bio-modal-photo" id="psBioPhoto"
+           onerror="this.style.display='none';document.getElementById('psBioInitials').style.display='flex'">
+      <div class="ps-bio-modal-initials" id="psBioInitials" style="display:none"></div>
+      <div class="ps-bio-modal-name" id="psBioName"></div>
+      <div class="ps-bio-modal-role" id="psBioRole"></div>
+    </div>
+    <div class="ps-bio-modal-body">
+      <div class="ps-bio-modal-skills" id="psBioSkills"></div>
+      <p class="ps-bio-modal-text" id="psBioText"></p>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
+  /* ── Données des membres (injectées depuis Django) ── */
+  var members = [
+    {% for member in team %}
+    {
+      name: "{{ member.name|escapejs }}",
+      role: "{{ member.role|escapejs }}",
+      skills: "{{ member.skills|escapejs }}",
+      bio: "{{ member.bio|escapejs }}",
+      image: "{% static 'img/' %}{{ member.image }}",
+      initials: "{{ member.initials|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  /* ── Carousel ── */
   var slides = document.querySelectorAll('.ps-team-slide');
   var dots   = document.querySelectorAll('.ps-team-dot');
-  if(slides.length < 2) return;
-
-  window.psTeamIdx = 0;
+  var currentIdx = 0;
   var timer = null;
 
-  window.psTeamGo = function(i) {
+  function goTo(i) {
     var n = slides.length;
-    window.psTeamIdx = ((i % n) + n) % n;
-    for(var j=0; j<n; j++){
+    currentIdx = ((i % n) + n) % n;
+    for (var j = 0; j < n; j++) {
       slides[j].classList.remove('ps-active');
       dots[j].classList.remove('ps-active');
     }
-    slides[window.psTeamIdx].classList.add('ps-active');
-    dots[window.psTeamIdx].classList.add('ps-active');
+    slides[currentIdx].classList.add('ps-active');
+    dots[currentIdx].classList.add('ps-active');
     resetTimer();
-  };
-
-  function autoNext(){ window.psTeamGo(window.psTeamIdx + 1); }
-  function resetTimer(){
-    if(timer) clearInterval(timer);
-    timer = setInterval(autoNext, 10000);
   }
 
+  function resetTimer() {
+    if (timer) clearInterval(timer);
+    timer = setInterval(function() { goTo(currentIdx + 1); }, 10000);
+  }
+
+  /* Flèches */
+  var prevBtn = document.getElementById('psTeamPrev');
+  var nextBtn = document.getElementById('psTeamNext');
+  if (prevBtn) prevBtn.addEventListener('click', function() { goTo(currentIdx - 1); });
+  if (nextBtn) nextBtn.addEventListener('click', function() { goTo(currentIdx + 1); });
+
+  /* Dots */
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      goTo(parseInt(dot.getAttribute('data-dot-idx')));
+    });
+  });
+
+  /* Pause au survol */
   var wrap = document.getElementById('psTeamSlides');
-  if(wrap){
-    wrap.addEventListener('mouseenter', function(){ if(timer) clearInterval(timer); });
+  if (wrap) {
+    wrap.addEventListener('mouseenter', function() { if (timer) clearInterval(timer); });
     wrap.addEventListener('mouseleave', resetTimer);
   }
 
-  resetTimer();
+  if (slides.length > 1) resetTimer();
+
+  /* ── Modal biographie ── */
+  var overlay  = document.getElementById('psBioOverlay');
+  var modal    = document.getElementById('psBioModal');
+  var closeBtn = document.getElementById('psBioClose');
+
+  function openBio(idx) {
+    var m = members[idx];
+    if (!m) return;
+
+    document.getElementById('psBioName').textContent = m.name;
+    document.getElementById('psBioRole').textContent = m.role;
+    document.getElementById('psBioSkills').textContent = m.skills;
+    document.getElementById('psBioText').textContent = m.bio;
+
+    /* Photo */
+    var photo = document.getElementById('psBioPhoto');
+    var initials = document.getElementById('psBioInitials');
+    photo.src = m.image;
+    photo.alt = m.name;
+    photo.style.display = 'block';
+    initials.style.display = 'none';
+    initials.textContent = m.initials;
+
+    /* Ouvrir */
+    overlay.classList.add('ps-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeBio() {
+    overlay.classList.remove('ps-open');
+    document.body.style.overflow = '';
+  }
+
+  /* Boutons "Lire la biographie complète" */
+  document.querySelectorAll('.ps-team-btn[data-bio-idx]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      openBio(parseInt(btn.getAttribute('data-bio-idx')));
+    });
+  });
+
+  /* Fermer */
+  if (closeBtn) closeBtn.addEventListener('click', closeBio);
+
+  /* Fermer en cliquant sur l'overlay (en dehors du modal) */
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) closeBio();
+    });
+  }
+
+  /* Fermer avec Échap */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeBio();
+  });
+
 })();
 </script>
