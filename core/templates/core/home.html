@@ -96,46 +96,12 @@
         PhytoScan AI couvre les cultures essentielles pour la sécurité alimentaire mondiale, avec un focus sur les maladies les plus fréquentes et dommageables.
       </p>
     </div>
-    <div class="plant-grid">
-      {% for p in species|slice:":4" %}
-        <div class="plant-card">
-          <div class="plant-img" style="background:{{ p.color }}">
-            <svg viewBox="0 0 80 80">
-              {% if p.slug == 'tomato' %}<circle cx="40" cy="47" r="26" fill="#E53935" opacity=".9"/><path d="M40 21 Q50 8 62 16 Q52 22 40 21Z" fill="#2E7D32"/><path d="M40 21 Q30 8 18 16 Q28 22 40 21Z" fill="#388E3C"/>
-              {% elif p.slug == 'corn' %}<ellipse cx="40" cy="48" rx="16" ry="26" fill="#F9A825"/><path d="M24 32 Q40 12 56 32" stroke="#33691E" stroke-width="3" fill="none"/>
-              {% elif p.slug == 'potato' %}<ellipse cx="40" cy="50" rx="24" ry="17" fill="#8D6E63"/><ellipse cx="30" cy="38" rx="14" ry="10" fill="#795548"/>
-              {% elif p.slug == 'apple' %}<circle cx="36" cy="47" r="22" fill="#EF5350"/><circle cx="50" cy="47" r="18" fill="#E53935"/><path d="M43 25 Q50 13 60 18 Q52 24 43 25Z" fill="#2E7D32"/>
-              {% endif %}
-            </svg>
-            <div class="plant-caption">{{ p.name }}</div>
-          </div>
-          <div class="plant-info">
-            <h4>{{ p.name }}</h4>
-            <p>{{ p.classes }} classe{{ p.classes|pluralize }} — {{ p.description }}</p>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-    <div class="plant-grid">
-      {% for p in species|slice:"4:" %}
-        <div class="plant-card">
-          <div class="plant-img" style="background:{{ p.color }}">
-            <svg viewBox="0 0 80 80">
-              {% if p.slug == 'grape' %}<circle cx="34" cy="35" r="8" fill="#7B1FA2" opacity=".9"/><circle cx="46" cy="35" r="8" fill="#8E24AA" opacity=".9"/><circle cx="40" cy="47" r="8" fill="#7B1FA2"/><circle cx="28" cy="47" r="8" fill="#6A1B9A" opacity=".8"/><circle cx="52" cy="47" r="8" fill="#6A1B9A" opacity=".8"/>
-              {% elif p.slug == 'pepper' %}<path d="M30 20 Q20 40 25 58 Q35 72 40 72 Q45 72 55 58 Q60 40 50 20 Q45 16 40 18 Q35 16 30 20Z" fill="#E53935"/>
-              {% elif p.slug == 'strawberry' %}<path d="M40 65 Q20 50 20 35 Q20 18 40 18 Q60 18 60 35 Q60 50 40 65Z" fill="#E91E63" opacity=".9"/>
-              {% elif p.slug == 'cherry' %}<circle cx="32" cy="50" r="12" fill="#C2185B"/><circle cx="50" cy="50" r="12" fill="#AD1457"/><path d="M32 38 Q40 20 55 22" stroke="#2E7D32" stroke-width="2" fill="none"/>
-              {% endif %}
-            </svg>
-            <div class="plant-caption">{{ p.name }}</div>
-          </div>
-          <div class="plant-info">
-            <h4>{{ p.name }}</h4>
-            <p>{{ p.classes }} classe{{ p.classes|pluralize }} — {{ p.description }}</p>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
+    {% with species|slice:":4" as plants %}
+      {% include 'core/includes/plants.html' %}
+    {% endwith %}
+    {% with species|slice:"4:" as plants %}
+      {% include 'core/includes/plants.html' %}
+    {% endwith %}
   </div>
 </section>
 
