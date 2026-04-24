@@ -215,6 +215,7 @@ TEAM_MEMBERS = [
         'skills': 'Machine Learning, Deep Learning, Computer Vision',
         'bio': 'Étudiante en Licence Mathématiques-Statistiques-Économie option Data Science à l\'ENSAE Dakar. Passionnée par l\'intelligence artificielle appliquée au développement durable en Afrique. Responsable de l\'architecture U-Net et du pipeline d\'entraînement du modèle.',
         'image': 'team_awa.jpg',
+        'initials': 'AG',
     },
     {
         'name': 'Fatou Soumaya WADE',
@@ -222,6 +223,7 @@ TEAM_MEMBERS = [
         'skills': 'TensorFlow, Keras, Augmentation de données',
         'bio': 'Spécialiste en réseaux de neurones convolutifs et en techniques d\'augmentation de données. Responsable de l\'optimisation des hyperparamètres et de l\'évaluation des performances du modèle U-Net sur le dataset PlantVillage.',
         'image': 'team_fatou.jpg',
+        'initials': 'FW',
     },
     {
         'name': 'Ndeye Khary SALL',
@@ -229,6 +231,7 @@ TEAM_MEMBERS = [
         'skills': 'Django, JavaScript, Design UI/UX',
         'bio': 'Experte en développement web avec une attention particulière portée à l\'expérience utilisateur. Responsable de l\'interface frontend, du chatbot PhytoBot et du déploiement de la plateforme sur Render.',
         'image': 'team_khary.jpg',
+        'initials': 'NS',
     },
     {
         'name': 'Emmanuel DOSSEKOU',
@@ -236,6 +239,7 @@ TEAM_MEMBERS = [
         'skills': 'Analyse statistique, Visualisation, Tests',
         'bio': 'Spécialiste en analyse exploratoire et en visualisation de données. Responsable du tableau de bord analytique, des métriques de performance et de l\'assurance qualité de l\'ensemble de la plateforme.',
         'image': 'team_emmanuel.jpg',
+        'initials': 'ED',
     },
 ]
 

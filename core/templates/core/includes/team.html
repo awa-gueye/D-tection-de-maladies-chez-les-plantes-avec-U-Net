@@ -1,130 +1,261 @@
 {% load static %}
+{# Section Notre Équipe — carousel avec styles embarqués pour fiabilité #}
 
-<section class="team-section" id="team">
-  <div class="s-container">
-    <div class="s-header-center">
-      <div class="s-kicker centered">Notre équipe</div>
-      <h2 class="s-title">Des experts passionnés au service de l'agriculture</h2>
-      <p class="s-sub" style="max-width:560px;margin-left:auto;margin-right:auto">
-        Une équipe pluridisciplinaire qui combine expertise en intelligence artificielle, développement web et analyse de données.
-      </p>
+<style>
+/* ═══ Équipe — styles embarqués ═══ */
+.ps-team { padding:5rem; background:#FAFAF7; }
+.ps-team-header { text-align:center; margin-bottom:3rem; }
+.ps-team-kicker {
+  font-family:Arial,sans-serif; font-size:.8rem; font-weight:700;
+  text-transform:uppercase; letter-spacing:.15em; color:#C8922A;
+  margin-bottom:.7rem;
+}
+.ps-team-title {
+  font-family:'Times New Roman',serif; font-size:2.4rem;
+  font-weight:700; color:#1C1B17; margin-bottom:.8rem;
+}
+.ps-team-sub {
+  font-family:Arial,sans-serif; font-size:1rem; color:#7A7568;
+  max-width:560px; margin:0 auto; line-height:1.7;
+}
+
+/* Carte glassmorphism */
+.ps-team-card {
+  background:rgba(255,255,255,.85); backdrop-filter:blur(12px);
+  border:1px solid rgba(232,230,223,.6); border-radius:24px;
+  padding:3rem 2.5rem 2rem; max-width:650px; margin:0 auto;
+  box-shadow:0 8px 40px rgba(10,46,13,.08);
+  position:relative;
+}
+
+/* Carousel */
+.ps-team-slides { position:relative; min-height:480px; }
+.ps-team-slide {
+  display:none; flex-direction:column; align-items:center;
+  text-align:center; animation:psFadeSlide .5s ease;
+}
+.ps-team-slide.ps-active { display:flex; }
+@keyframes psFadeSlide {
+  from { opacity:0; transform:translateY(16px) scale(.97); }
+  to   { opacity:1; transform:translateY(0) scale(1); }
+}
+
+/* Photo circulaire */
+.ps-team-photo-wrap {
+  position:relative; width:180px; height:180px; margin-bottom:1.5rem;
+}
+.ps-team-ring {
+  position:absolute; inset:-7px; border-radius:50%;
+  border:3px solid transparent;
+  border-top-color:#1B5E20; border-right-color:#C8922A;
+  animation:psRingSpin 3.5s linear infinite;
+}
+@keyframes psRingSpin { to { transform:rotate(360deg); } }
+
+.ps-team-photo {
+  width:180px; height:180px; border-radius:50%; object-fit:cover;
+  border:4px solid white; box-shadow:0 6px 24px rgba(10,46,13,.15);
+  display:block;
+}
+.ps-team-initials {
+  width:180px; height:180px; border-radius:50%;
+  border:4px solid white; box-shadow:0 6px 24px rgba(10,46,13,.15);
+  background:linear-gradient(135deg,#E8F5E9,#F1F8F1);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Times New Roman',serif; font-size:3rem;
+  font-weight:700; color:#1B5E20;
+}
+
+/* Texte membre */
+.ps-team-name {
+  font-family:'Times New Roman',serif; font-size:1.9rem;
+  font-weight:700; color:#1C1B17; margin-bottom:.35rem;
+}
+.ps-team-role {
+  font-family:Arial,sans-serif; font-size:1rem; font-weight:700;
+  color:#C8922A; margin-bottom:.3rem;
+}
+.ps-team-skills {
+  font-family:Arial,sans-serif; font-size:.9rem; color:#7A7568;
+  font-style:italic; margin-bottom:1rem;
+}
+.ps-team-bio {
+  font-family:Arial,sans-serif; font-size:.92rem; color:#7A7568;
+  line-height:1.75; max-width:500px; margin:0 auto 1.5rem;
+}
+
+/* Bouton biographie */
+.ps-team-btn {
+  display:inline-flex; align-items:center; gap:.5rem;
+  padding:.75rem 2rem; border-radius:25px;
+  background:linear-gradient(135deg,#1B5E20,#2E7D32);
+  color:white; font-family:Arial,sans-serif; font-size:.9rem;
+  font-weight:700; border:none; cursor:pointer;
+  box-shadow:0 4px 14px rgba(27,94,32,.35);
+  transition:all .25s;
+}
+.ps-team-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(27,94,32,.45);
+}
+.ps-team-btn svg {
+  width:16px; height:16px; stroke:currentColor;
+  fill:none; stroke-width:2.5;
+}
+
+/* Flèches */
+.ps-team-nav {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:46px; height:46px; border-radius:50%;
+  border:2px solid #1B5E20; background:white; color:#1B5E20;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .25s; z-index:3;
+  box-shadow:0 2px 8px rgba(10,46,13,.1);
+}
+.ps-team-nav:hover {
+  background:#1B5E20; color:white;
+  transform:translateY(-50%) scale(1.08);
+}
+.ps-team-nav svg {
+  width:20px; height:20px; stroke:currentColor;
+  fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;
+}
+.ps-team-prev { left:-65px; }
+.ps-team-next { right:-65px; }
+
+/* Dots */
+.ps-team-dots {
+  display:flex; gap:.5rem; justify-content:center; margin-top:1.75rem;
+}
+.ps-team-dot {
+  width:10px; height:10px; border-radius:50%; background:#E8E6DF;
+  cursor:pointer; transition:all .3s; border:none;
+}
+.ps-team-dot.ps-active {
+  background:#1B5E20; width:28px; border-radius:5px;
+}
+
+/* Icône mail */
+.ps-team-mail {
+  display:flex; width:40px; height:40px; border-radius:50%;
+  background:#F4F3EE; align-items:center; justify-content:center;
+  margin:1.25rem auto 0; transition:all .25s; color:#C8922A;
+  text-decoration:none;
+}
+.ps-team-mail:hover {
+  background:#C8922A; color:white; transform:scale(1.12);
+}
+.ps-team-mail svg {
+  width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2;
+}
+
+@media (max-width:1100px) {
+  .ps-team { padding:3rem 2rem; }
+  .ps-team-prev { left:-10px; }
+  .ps-team-next { right:-10px; }
+}
+@media (max-width:768px) {
+  .ps-team { padding:2.5rem 1rem; }
+  .ps-team-photo, .ps-team-initials { width:140px; height:140px; }
+  .ps-team-photo-wrap { width:140px; height:140px; }
+  .ps-team-name { font-size:1.5rem; }
+  .ps-team-card { padding:2rem 1.25rem 1.5rem; }
+  .ps-team-nav { display:none; }
+  .ps-team-slides { min-height:420px; }
+}
+</style>
+
+<section class="ps-team" id="team">
+  <div class="ps-team-header">
+    <div class="ps-team-kicker">Notre équipe</div>
+    <h2 class="ps-team-title">Des experts passionnés au service de l'agriculture</h2>
+    <p class="ps-team-sub">
+      Une équipe pluridisciplinaire qui combine expertise en intelligence artificielle,
+      développement web et analyse de données pour lutter contre les maladies des plantes.
+    </p>
+  </div>
+
+  <div class="ps-team-card">
+    <div class="ps-team-slides" id="psTeamSlides">
+
+      {% for member in team %}
+      <div class="ps-team-slide {% if forloop.first %}ps-active{% endif %}" data-idx="{{ forloop.counter0 }}">
+        <div class="ps-team-photo-wrap">
+          <div class="ps-team-ring"></div>
+          <img src="{% static 'img/' %}{{ member.image }}"
+               alt="{{ member.name }}"
+               class="ps-team-photo"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="ps-team-initials" style="display:none">{{ member.initials }}</div>
+        </div>
+        <h3 class="ps-team-name">{{ member.name }}</h3>
+        <div class="ps-team-role">{{ member.role }}</div>
+        <div class="ps-team-skills">{{ member.skills }}</div>
+        <p class="ps-team-bio">{{ member.bio }}</p>
+        <button class="ps-team-btn" onclick="this.previousElementSibling.style.webkitLineClamp=this.previousElementSibling.style.webkitLineClamp?'':'unset';this.innerHTML=this.previousElementSibling.style.webkitLineClamp?'Lire la biographie complète <svg viewBox=&quot;0 0 24 24&quot;><line x1=&quot;5&quot; y1=&quot;12&quot; x2=&quot;19&quot; y2=&quot;12&quot;/><polyline points=&quot;12 5 19 12 12 19&quot;/></svg>':'Réduire <svg viewBox=&quot;0 0 24 24&quot;><polyline points=&quot;18 15 12 9 6 15&quot;/></svg>'">
+          Lire la biographie complète
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+      {% endfor %}
+
+      <button class="ps-team-nav ps-team-prev" onclick="psTeamGo(psTeamIdx-1)" aria-label="Précédent">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="ps-team-nav ps-team-next" onclick="psTeamGo(psTeamIdx+1)" aria-label="Suivant">
+        <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
     </div>
 
-    <div class="team-card-wrap">
-      <div class="team-carousel" id="teamCarousel">
-        {% for member in team %}
-          <div class="team-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-            <div class="team-photo-wrap">
-              <div class="team-photo-ring"></div>
-              {% if member.image %}
-                <img src="{% static 'img/' %}{{ member.image }}" alt="{{ member.name }}" class="team-photo"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                <div class="team-photo-placeholder" style="display: none;">{{ member.name.0 }}{{ member.name.split.1.0|default:'' }}</div>
-              {% else %}
-                <div class="team-photo-placeholder">{{ member.name.0 }}{{ member.name.split.1.0|default:'' }}</div>
-              {% endif %}
-            </div>
-            <h3 class="team-name">{{ member.name }}</h3>
-            <div class="team-role">{{ member.role }}</div>
-            <div class="team-skills">{{ member.skills }}</div>
-            <div class="team-bio-wrapper">
-              <p class="team-bio" id="teamBio{{ forloop.counter0 }}">{{ member.bio }}</p>
-            </div>
-            <button class="team-bio-btn" data-bio-id="{{ forloop.counter0 }}">
-              Lire la biographie complète
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-              </svg>
-            </button>
-          </div>
-        {% endfor %}
-        <button class="team-nav team-nav-prev" aria-label="Précédent">&#10094;</button>
-        <button class="team-nav team-nav-next" aria-label="Suivant">&#10095;</button>
-      </div>
-
-      <div class="team-dots" id="teamDots">
-        {% for member in team %}
-          <button class="team-dot {% if forloop.first %}active{% endif %}" data-dot-index="{{ forloop.counter0 }}"></button>
-        {% endfor %}
-      </div>
-
-      <a href="{% url 'core:contact' %}" class="team-mail-link" title="Contacter l'équipe">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-          <polyline points="22,6 12,13 2,6"/>
-        </svg>
-      </a>
+    <div class="ps-team-dots" id="psTeamDots">
+      {% for member in team %}
+      <button class="ps-team-dot {% if forloop.first %}ps-active{% endif %}"
+              onclick="psTeamGo({{ forloop.counter0 }})" aria-label="{{ member.name }}"></button>
+      {% endfor %}
     </div>
+
+    <a href="{% url 'core:contact' %}" class="ps-team-mail" title="Contacter l'équipe">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+    </a>
   </div>
 </section>
 
 <script>
-// Script interne pour garantir le fonctionnement du carrousel (évite conflit avec main.js)
-(function() {
-    function initTeamCarousel() {
-        const slides = Array.from(document.querySelectorAll('#teamCarousel .team-slide'));
-        const dots = Array.from(document.querySelectorAll('#teamDots .team-dot'));
-        if (slides.length <= 1) return;
+(function(){
+  var slides = document.querySelectorAll('.ps-team-slide');
+  var dots   = document.querySelectorAll('.ps-team-dot');
+  if(slides.length < 2) return;
 
-        let current = slides.findIndex(s => s.classList.contains('active'));
-        if (current === -1) current = 0;
-        let interval = null;
-        const DELAY = 7000;
+  window.psTeamIdx = 0;
+  var timer = null;
 
-        function showSlide(index) {
-            slides.forEach((s, i) => s.classList.toggle('active', i === index));
-            dots.forEach((d, i) => d.classList.toggle('active', i === index));
-            current = index;
-        }
-
-        function next() { showSlide((current + 1) % slides.length); resetAuto(); }
-        function prev() { showSlide((current - 1 + slides.length) % slides.length); resetAuto(); }
-        function resetAuto() { if (interval) clearInterval(interval); interval = setInterval(next, DELAY); }
-        function stopAuto() { if (interval) clearInterval(interval); interval = null; }
-
-        const prevBtn = document.querySelector('#teamCarousel .team-nav-prev');
-        const nextBtn = document.querySelector('#teamCarousel .team-nav-next');
-        if (prevBtn) prevBtn.onclick = prev;
-        if (nextBtn) nextBtn.onclick = next;
-
-        dots.forEach((dot, i) => { dot.onclick = () => { showSlide(i); resetAuto(); }; });
-
-        const carouselDiv = document.getElementById('teamCarousel');
-        if (carouselDiv) {
-            carouselDiv.addEventListener('mouseenter', stopAuto);
-            carouselDiv.addEventListener('mouseleave', resetAuto);
-        }
-        resetAuto();
+  window.psTeamGo = function(i) {
+    var n = slides.length;
+    window.psTeamIdx = ((i % n) + n) % n;
+    for(var j=0; j<n; j++){
+      slides[j].classList.remove('ps-active');
+      dots[j].classList.remove('ps-active');
     }
+    slides[window.psTeamIdx].classList.add('ps-active');
+    dots[window.psTeamIdx].classList.add('ps-active');
+    resetTimer();
+  };
 
-    // Fonction pour les biographies
-    window.toggleBio = function(bioId) {
-        const bio = document.getElementById('teamBio' + bioId);
-        if (!bio) return;
-        const isExpanded = bio.classList.contains('expanded');
-        bio.classList.toggle('expanded');
-        const btn = bio.closest('.team-slide').querySelector('.team-bio-btn');
-        if (btn) {
-            btn.innerHTML = isExpanded 
-                ? 'Lire la biographie complète <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'
-                : 'Réduire la biographie <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>';
-        }
-    };
+  function autoNext(){ window.psTeamGo(window.psTeamIdx + 1); }
+  function resetTimer(){
+    if(timer) clearInterval(timer);
+    timer = setInterval(autoNext, 10000);
+  }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initTeamCarousel);
-    } else {
-        initTeamCarousel();
-    }
+  var wrap = document.getElementById('psTeamSlides');
+  if(wrap){
+    wrap.addEventListener('mouseenter', function(){ if(timer) clearInterval(timer); });
+    wrap.addEventListener('mouseleave', resetTimer);
+  }
 
-    // Attacher les événements des boutons bio après chargement du DOM
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.team-bio-btn').forEach(btn => {
-            const id = btn.getAttribute('data-bio-id');
-            if (id !== null) {
-                btn.onclick = (e) => { e.preventDefault(); window.toggleBio(parseInt(id)); };
-            }
-        });
-    });
+  resetTimer();
 })();
 </script>
