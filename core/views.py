@@ -238,7 +238,7 @@ TEAM_MEMBERS = [
         'role': 'Analyste de données & Data Scientist',
         'skills': 'Analyse statistique, Visualisation, Tests, Machine Learning, TensorFlow',
         'bio': 'Spécialiste en analyse exploratoire et en visualisation de données. Responsable du tableau de bord analytique, des métriques de performance et de l\'assurance qualité de l\'ensemble de la plateforme.',
-        'image': 'team_emmanuel.jpeg',
+        'image': 'team_emmanuel.jpg',
         'initials': 'ED',
     },
 ]
