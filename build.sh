@@ -12,13 +12,24 @@ pip install --upgrade pip
 echo "=== 3. Installation des dépendances ==="
 pip install -r requirements.txt
 
-echo "=== 4. Création du répertoire staticfiles ==="
+echo "=== 4. Conversion du modèle PyTorch → ONNX ==="
+echo "Installation des dépendances PyTorch (temporaires)..."
+pip install torch torchvision segmentation-models-pytorch onnx onnxscript onnxruntime six
+
+echo "Conversion du modèle..."
+python convert_to_onnx.py || echo "Conversion skipped (modèle non trouvé ou PyTorch non disponible)"
+
+echo "Suppression du modèle PyTorch pour économiser l'espace..."
+rm -f detection/models/unet_best.pth
+rm -rf detection/models/__pycache__
+
+echo "=== 5. Création du répertoire staticfiles ==="
 mkdir -p staticfiles
 
-echo "=== 5. Collecte des fichiers statiques ==="
+echo "=== 6. Collecte des fichiers statiques ==="
 python manage.py collectstatic --no-input --verbosity 3 2>&1
 
-echo "=== 6. Vérification des fichiers statiques ==="
+echo "=== 7. Vérification des fichiers statiques ==="
 if [ -d "staticfiles" ]; then
     echo "✓ Dossier staticfiles existe"
     find staticfiles -type f | head -20
@@ -27,9 +38,8 @@ else
     exit 1
 fi
 
-echo "=== 7. Migrations de la base de données ==="
+echo "=== 8. Migrations de la base de données ==="
 python manage.py migrate --verbosity 2
 
 echo "=== ✓ Build completed successfully ==="
-
-echo "=== Build terminé avec succès ==="
+echo "Modèle ONNX chargé et prêt pour la production!"

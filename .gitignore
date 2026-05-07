@@ -35,6 +35,11 @@ db.sqlite3-journal
 staticfiles/
 /media/uploads/
 
+# ── Modèles ML (trop volumineux) ────────────────────
+detection/models/*.onnx
+detection/models/*.onnx.data
+detection/models/*.pth
+
 # ── Tests et coverage ───────────────────────────────
 .coverage
 .coverage.*
