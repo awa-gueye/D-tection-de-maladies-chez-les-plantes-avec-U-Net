@@ -1,12 +1,6 @@
 """
 unet_model.py — Inférence U-Net PyTorch pour PhytoScan AI (Django).
-
-Remplace le mode démonstration par le vrai modèle entraîné sur PlantVillage.
-Interface identique à l'original : analyze_image() retourne le même dict.
-
-Placement du checkpoint :
-    detection/models/unet_best.pth
-    OU défini via variable d'environnement MODEL_PATH
+Télécharge automatiquement le modèle depuis Google Drive au démarrage.
 """
 import os
 import io
@@ -15,13 +9,20 @@ import base64
 import numpy as np
 from PIL import Image, ImageFilter
 
-# ─── Imports PyTorch (optionnels — fallback démo si absent) ────────────────
+# ─── Config ────────────────────────────────────────────────────────────────
+BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR      = os.path.join(BASE_DIR, "models")
+MODEL_PATH     = os.path.join(MODEL_DIR, "unet_best.pth")
+GDRIVE_FILE_ID = "1ZZOwjCiZpUmYLif2KyPc0y34il2Ecz30"
+IMAGE_SIZE     = 256
+MEAN           = (0.485, 0.456, 0.406)
+STD            = (0.229, 0.224, 0.225)
+THRESHOLD      = 0.5
+
+# ─── Imports optionnels ─────────────────────────────────────────────────────
 try:
     import torch
     import torch.nn as nn
-    import cv2
-    import albumentations as A
-    from albumentations.pytorch import ToTensorV2
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
@@ -32,24 +33,57 @@ try:
     SMP_AVAILABLE = True
 except ImportError:
     SMP_AVAILABLE = False
-    print("Warning: segmentation_models_pytorch non disponible.")
+
+try:
+    import albumentations as A
+    from albumentations.pytorch import ToTensorV2
+    ALB_AVAILABLE = True
+except ImportError:
+    ALB_AVAILABLE = False
+
+DEVICE = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
 
 
 # ═══════════════════════════════════════════════════════════════════════════ #
-#  Configuration                                                               #
+#  Téléchargement automatique depuis Google Drive                             #
 # ═══════════════════════════════════════════════════════════════════════════ #
 
-# Chemin vers le checkpoint — modifiable via variable d'environnement
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_MODEL_PATH = os.path.join(BASE_DIR, "models", "unet_best.pth")
-MODEL_PATH = os.environ.get("MODEL_PATH", DEFAULT_MODEL_PATH)
+def _download_model():
+    """Télécharge le modèle depuis Google Drive si absent."""
+    if os.path.exists(MODEL_PATH):
+        size_mb = os.path.getsize(MODEL_PATH) / 1e6
+        print(f"Modèle trouvé localement ({size_mb:.1f} MB) ✓")
+        return True
 
-# Paramètres identiques à l'entraînement
-IMAGE_SIZE  = 256
-MEAN        = (0.485, 0.456, 0.406)
-STD         = (0.229, 0.224, 0.225)
-THRESHOLD   = 0.5
-DEVICE      = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    print(f"Téléchargement du modèle U-Net depuis Google Drive...")
+    print(f"ID : {GDRIVE_FILE_ID}")
+
+    try:
+        import gdown
+        url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+        gdown.download(url, MODEL_PATH, quiet=False)
+
+        if os.path.exists(MODEL_PATH):
+            size_mb = os.path.getsize(MODEL_PATH) / 1e6
+            print(f"Modèle téléchargé ✓ ({size_mb:.1f} MB)")
+            return True
+        else:
+            print("Échec : fichier non créé après téléchargement.")
+            return False
+
+    except Exception as e:
+        print(f"Échec téléchargement gdown ({e})")
+        # Fallback urllib
+        try:
+            import urllib.request
+            url = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
+            urllib.request.urlretrieve(url, MODEL_PATH)
+            print(f"Modèle téléchargé via urllib ✓")
+            return True
+        except Exception as e2:
+            print(f"Échec urllib ({e2}) → mode démo activé.")
+            return False
 
 
 # ═══════════════════════════════════════════════════════════════════════════ #
@@ -57,22 +91,16 @@ DEVICE      = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
 # ═══════════════════════════════════════════════════════════════════════════ #
 
 def load_model(path=None):
-    """
-    Charge le modèle U-Net PyTorch.
-    Retourne un dict {'mode': 'real', 'model': ...} ou {'mode': 'demo'}.
-    """
+    """Charge le modèle U-Net PyTorch."""
     if path is None:
         path = MODEL_PATH
 
-    # Vérifie les dépendances
     if not TORCH_AVAILABLE or not SMP_AVAILABLE:
         print("Mode démo : PyTorch ou smp non disponible.")
         return {"mode": "demo"}
 
-    # Vérifie que le fichier existe
     if not os.path.exists(path):
-        print(f"Checkpoint introuvable : {path}")
-        print("→ Mode démo activé. Placez unet_best.pth dans detection/models/")
+        print(f"Checkpoint introuvable : {path} → mode démo.")
         return {"mode": "demo"}
 
     try:
@@ -92,23 +120,23 @@ def load_model(path=None):
         epoch   = checkpoint.get("epoch", "?")
         val_iou = checkpoint.get("val_iou", 0)
         print(f"Modèle U-Net chargé ✓ | epoch={epoch} | val_IoU={val_iou:.4f} | device={DEVICE}")
-
         return {"mode": "real", "model": model}
 
     except Exception as e:
-        print(f"Erreur chargement modèle ({e}) → mode démo activé.")
+        print(f"Erreur chargement modèle ({e}) → mode démo.")
         return {"mode": "demo"}
 
 
-# ─── Modèle chargé une seule fois au démarrage de Django ───────────────────
+# ─── Téléchargement + chargement au démarrage Django ───────────────────────
+_download_model()
 MODEL = load_model()
 
 
 # ═══════════════════════════════════════════════════════════════════════════ #
-#  Prétraitement / Post-traitement                                             #
+#  Prétraitement                                                               #
 # ═══════════════════════════════════════════════════════════════════════════ #
 
-def _preprocess(pil_image: Image.Image) -> "torch.Tensor":
+def _preprocess(pil_image):
     """PIL RGB → Tensor [1, 3, H, W] normalisé."""
     img_rgb = np.array(pil_image.convert("RGB"))
     transform = A.Compose([
@@ -120,7 +148,7 @@ def _preprocess(pil_image: Image.Image) -> "torch.Tensor":
     return tensor.unsqueeze(0).to(DEVICE)
 
 
-def _predict_mask(model: "nn.Module", tensor: "torch.Tensor") -> np.ndarray:
+def _predict_mask(model, tensor):
     """Retourne un masque binaire numpy [H, W] (0.0 ou 1.0)."""
     with torch.no_grad():
         logits = model(tensor)
@@ -128,7 +156,7 @@ def _predict_mask(model: "nn.Module", tensor: "torch.Tensor") -> np.ndarray:
     return (prob > THRESHOLD).astype(np.float32)
 
 
-def _demo_mask(arr: np.ndarray) -> np.ndarray:
+def _demo_mask(arr):
     """Masque de démonstration basé sur la luminance."""
     gray = np.mean(arr, axis=2)
     mask = (gray < 0.4).astype(np.float32)
@@ -137,7 +165,7 @@ def _demo_mask(arr: np.ndarray) -> np.ndarray:
     return np.array(mask_pil) / 255.0
 
 
-def _image_to_data_uri(img_array: np.ndarray) -> str:
+def _image_to_data_uri(img_array):
     """Convertit un tableau numpy (H,W,3) en data URI base64 PNG."""
     img    = Image.fromarray(img_array.astype(np.uint8))
     buffer = io.BytesIO()
@@ -150,7 +178,7 @@ def _image_to_data_uri(img_array: np.ndarray) -> str:
 #  Fonction principale — interface identique à l'original                     #
 # ═══════════════════════════════════════════════════════════════════════════ #
 
-def analyze_image(pil_image: Image.Image, alpha: float = 0.45) -> dict:
+def analyze_image(pil_image, alpha=0.45):
     """
     Analyse une image PIL et retourne la segmentation complète.
 
@@ -161,13 +189,13 @@ def analyze_image(pil_image: Image.Image, alpha: float = 0.45) -> dict:
     Returns:
         dict avec : predicted_class, predicted_state, disease_pct,
                     healthy_pct, original_image, mask_image,
-                    overlay_image, confidence
+                    overlay_image, confidence, model_mode
     """
-    img     = pil_image.convert("RGB").resize((IMAGE_SIZE, IMAGE_SIZE))
-    arr     = np.array(img) / 255.0   # [H, W, 3] float64 [0, 1]
+    img = pil_image.convert("RGB").resize((IMAGE_SIZE, IMAGE_SIZE))
+    arr = np.array(img) / 255.0
 
     # ── Génération du masque ─────────────────────────────────────────────
-    if MODEL.get("mode") == "real" and TORCH_AVAILABLE:
+    if MODEL.get("mode") == "real" and TORCH_AVAILABLE and ALB_AVAILABLE:
         tensor = _preprocess(img)
         mask   = _predict_mask(MODEL["model"], tensor)
     else:
@@ -182,8 +210,8 @@ def analyze_image(pil_image: Image.Image, alpha: float = 0.45) -> dict:
 
     # ── Images de sortie ─────────────────────────────────────────────────
     mask_rgb = np.zeros((IMAGE_SIZE, IMAGE_SIZE, 3), dtype=np.uint8)
-    mask_rgb[mask > 0.5]  = [183, 28, 28]   # rouge  = zones malades
-    mask_rgb[mask <= 0.5] = [46, 125, 50]   # vert   = zones saines
+    mask_rgb[mask > 0.5]  = [183, 28, 28]   # rouge = zones malades
+    mask_rgb[mask <= 0.5] = [46, 125, 50]   # vert  = zones saines
 
     original_rgb = (arr * 255).astype(np.uint8)
     overlay      = (arr * 255 * (1 - alpha) + mask_rgb * alpha).astype(np.uint8)
@@ -200,9 +228,9 @@ def analyze_image(pil_image: Image.Image, alpha: float = 0.45) -> dict:
         predicted_state = "healthy"
 
     confidence = {
-        "Plante saine":      round(max(0.05, 1 - disease_pct / 100) * 100),
-        "Maladie foliaire":  round(min(0.95, disease_pct / 100) * 100),
-        "Arrière-plan":      8,
+        "Plante saine":     round(max(0.05, 1 - disease_pct / 100) * 100),
+        "Maladie foliaire": round(min(0.95, disease_pct / 100) * 100),
+        "Arrière-plan":     8,
     }
 
     return {
