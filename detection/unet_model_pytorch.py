@@ -1,6 +1,6 @@
 """
-unet_model.py — Inférence U-Net ONNX pour PhytoScan AI (optimisé mémoire).
-Utilise ONNX au lieu de PyTorch pour réduire la RAM de 50%.
+unet_model.py — Inférence U-Net PyTorch pour PhytoScan AI (Django).
+Télécharge automatiquement le modèle depuis Google Drive au démarrage.
 """
 import os
 import io
@@ -12,7 +12,7 @@ from PIL import Image, ImageFilter
 # ─── Config ────────────────────────────────────────────────────────────────
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR      = os.path.join(BASE_DIR, "models")
-ONNX_MODEL_PATH = os.path.join(MODEL_DIR, "unet_best.onnx")
+MODEL_PATH     = os.path.join(MODEL_DIR, "unet_best.pth")
 GDRIVE_FILE_ID = "1ZZOwjCiZpUmYLif2KyPc0y34il2Ecz30"
 IMAGE_SIZE     = 256
 MEAN           = (0.485, 0.456, 0.406)
@@ -21,12 +21,18 @@ THRESHOLD      = 0.5
 
 # ─── Imports optionnels ─────────────────────────────────────────────────────
 try:
-    import onnxruntime as ort
-    ONNX_AVAILABLE = True
-    print("✓ ONNX Runtime disponible")
+    import torch
+    import torch.nn as nn
+    TORCH_AVAILABLE = True
 except ImportError:
-    ONNX_AVAILABLE = False
-    print("✗ ONNX Runtime non disponible — mode démo activé.")
+    TORCH_AVAILABLE = False
+    print("Warning: PyTorch non disponible — mode démo activé.")
+
+try:
+    import segmentation_models_pytorch as smp
+    SMP_AVAILABLE = True
+except ImportError:
+    SMP_AVAILABLE = False
 
 try:
     import albumentations as A
@@ -35,55 +41,103 @@ try:
 except ImportError:
     ALB_AVAILABLE = False
 
+DEVICE = "cuda" if TORCH_AVAILABLE and torch.cuda.is_available() else "cpu"
+
 
 # ═══════════════════════════════════════════════════════════════════════════ #
-#  Vérification du modèle ONNX                                                 #
+#  Téléchargement automatique depuis Google Drive                             #
 # ═══════════════════════════════════════════════════════════════════════════ #
 
-def _check_onnx_model():
-    """Vérifie si le modèle ONNX existe."""
-    if os.path.exists(ONNX_MODEL_PATH):
-        size_mb = os.path.getsize(ONNX_MODEL_PATH) / 1e6
-        print(f"✓ Modèle ONNX trouvé ({size_mb:.1f} MB)")
+def _download_model():
+    """Télécharge le modèle depuis Google Drive si absent."""
+    if os.path.exists(MODEL_PATH):
+        size_mb = os.path.getsize(MODEL_PATH) / 1e6
+        print(f"Modèle trouvé localement ({size_mb:.1f} MB) ✓")
         return True
-    else:
-        print(f"✗ Modèle ONNX non trouvé: {ONNX_MODEL_PATH}")
-        return False
+
+    os.makedirs(MODEL_DIR, exist_ok=True)
+    print(f"Téléchargement du modèle U-Net depuis Google Drive...")
+    print(f"ID : {GDRIVE_FILE_ID}")
+
+    try:
+        import gdown
+        url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+        gdown.download(url, MODEL_PATH, quiet=False)
+
+        if os.path.exists(MODEL_PATH):
+            size_mb = os.path.getsize(MODEL_PATH) / 1e6
+            print(f"Modèle téléchargé ✓ ({size_mb:.1f} MB)")
+            return True
+        else:
+            print("Échec : fichier non créé après téléchargement.")
+            return False
+
+    except Exception as e:
+        print(f"Échec téléchargement gdown ({e})")
+        # Fallback urllib
+        try:
+            import urllib.request
+            url = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
+            urllib.request.urlretrieve(url, MODEL_PATH)
+            print(f"Modèle téléchargé via urllib ✓")
+            return True
+        except Exception as e2:
+            print(f"Échec urllib ({e2}) → mode démo activé.")
+            return False
 
 
 # ═══════════════════════════════════════════════════════════════════════════ #
-#  Chargement du modèle (LAZY LOADING)                                        #
+#  Chargement du modèle                                                        #
 # ═══════════════════════════════════════════════════════════════════════════ #
 
-_check_onnx_model()
-MODEL = None  # Lazy loading
+def load_model(path=None):
+    """Charge le modèle U-Net PyTorch."""
+    if path is None:
+        path = MODEL_PATH
+
+    if not TORCH_AVAILABLE or not SMP_AVAILABLE:
+        print("Mode démo : PyTorch ou smp non disponible.")
+        return {"mode": "demo"}
+
+    if not os.path.exists(path):
+        print(f"Checkpoint introuvable : {path} → mode démo.")
+        return {"mode": "demo"}
+
+    try:
+        checkpoint = torch.load(path, map_location=DEVICE)
+        cfg = checkpoint.get("model_config", {})
+
+        model = smp.Unet(
+            encoder_name    = cfg.get("encoder_name", "resnet50"),
+            encoder_weights = None,
+            in_channels     = cfg.get("in_channels", 3),
+            classes         = cfg.get("num_classes", 1),
+            activation      = cfg.get("activation", None),
+        )
+        model.load_state_dict(checkpoint["model_state"])
+        model.to(DEVICE).eval()
+
+        epoch   = checkpoint.get("epoch", "?")
+        val_iou = checkpoint.get("val_iou", 0)
+        print(f"Modèle U-Net chargé ✓ | epoch={epoch} | val_IoU={val_iou:.4f} | device={DEVICE}")
+        return {"mode": "real", "model": model}
+
+    except Exception as e:
+        print(f"Erreur chargement modèle ({e}) → mode démo.")
+        return {"mode": "demo"}
+
+
+# ─── Téléchargement + chargement LAZY (à la première utilisation) ───────────
+_download_model()
+MODEL = None  # Pas de chargement au démarrage !
 
 
 def get_model():
-    """Charge le modèle ONNX seulement à la première utilisation."""
+    """Charge le modèle seulement à la première utilisation (lazy loading)."""
     global MODEL
     if MODEL is None:
-        if not ONNX_AVAILABLE:
-            print("Mode démo : ONNX Runtime non disponible.")
-            return {"mode": "demo"}
-        
-        if not os.path.exists(ONNX_MODEL_PATH):
-            print(f"Mode démo : Modèle ONNX non trouvé.")
-            return {"mode": "demo"}
-        
-        try:
-            print("Chargement du modèle ONNX...")
-            # Choisir le provider (GPU si disponible, sinon CPU)
-            providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
-            MODEL = {
-                "mode": "real",
-                "session": ort.InferenceSession(ONNX_MODEL_PATH, providers=providers),
-            }
-            print("✓ Modèle ONNX chargé")
-            return MODEL
-        except Exception as e:
-            print(f"Erreur chargement ONNX ({e}) → mode démo.")
-            return {"mode": "demo"}
+        print("Chargement du modèle à la première requête...")
+        MODEL = load_model()
     return MODEL
 
 
@@ -92,30 +146,22 @@ def get_model():
 # ═══════════════════════════════════════════════════════════════════════════ #
 
 def _preprocess(pil_image):
-    """PIL RGB → Numpy array [1, 3, H, W] normalisé."""
+    """PIL RGB → Tensor [1, 3, H, W] normalisé."""
     img_rgb = np.array(pil_image.convert("RGB"))
-    if ALB_AVAILABLE:
-        transform = A.Compose([
-            A.Resize(IMAGE_SIZE, IMAGE_SIZE),
-            A.Normalize(mean=MEAN, std=STD),
-        ])
-        transformed = transform(image=img_rgb)
-        img_array = transformed["image"]
-    else:
-        # Fallback simple
-        img_array = np.array(pil_image.convert("RGB").resize((IMAGE_SIZE, IMAGE_SIZE))) / 255.0
-    
-    # Format: [1, 3, H, W]
-    return np.expand_dims(img_array, axis=0).astype(np.float32)
+    transform = A.Compose([
+        A.Resize(IMAGE_SIZE, IMAGE_SIZE),
+        A.Normalize(mean=MEAN, std=STD),
+        ToTensorV2(),
+    ])
+    tensor = transform(image=img_rgb)["image"]
+    return tensor.unsqueeze(0).to(DEVICE)
 
 
-def _predict_mask(session, input_array):
-    """Inférence ONNX — retourne masque binaire numpy [H, W]."""
-    input_name = session.get_inputs()[0].name
-    output_name = session.get_outputs()[0].name
-    
-    logits = session.run([output_name], {input_name: input_array})[0]
-    prob = 1 / (1 + np.exp(-logits[0, 0]))  # Sigmoid
+def _predict_mask(model, tensor):
+    """Retourne un masque binaire numpy [H, W] (0.0 ou 1.0)."""
+    with torch.no_grad():
+        logits = model(tensor)
+        prob   = torch.sigmoid(logits[0, 0]).cpu().numpy()
     return (prob > THRESHOLD).astype(np.float32)
 
 
@@ -147,19 +193,21 @@ def analyze_image(pil_image, alpha=0.45):
 
     Args:
         pil_image : Image PIL à analyser
-        alpha     : Transparence du masque (0.1 à 0.9)
+        alpha     : Transparence du masque de superposition (0.1 à 0.9)
 
     Returns:
-        dict avec les résultats d'analyse
+        dict avec : predicted_class, predicted_state, disease_pct,
+                    healthy_pct, original_image, mask_image,
+                    overlay_image, confidence, model_mode
     """
     img = pil_image.convert("RGB").resize((IMAGE_SIZE, IMAGE_SIZE))
     arr = np.array(img) / 255.0
 
     # ── Génération du masque ─────────────────────────────────────────────
     model = get_model()
-    if model.get("mode") == "real" and ONNX_AVAILABLE:
-        input_array = _preprocess(img)
-        mask = _predict_mask(model["session"], input_array)
+    if model.get("mode") == "real" and TORCH_AVAILABLE and ALB_AVAILABLE:
+        tensor = _preprocess(img)
+        mask   = _predict_mask(model["model"], tensor)
     else:
         mask = _demo_mask(arr)
 
@@ -204,5 +252,5 @@ def analyze_image(pil_image, alpha=0.45):
         "mask_image":      _image_to_data_uri(mask_rgb),
         "overlay_image":   _image_to_data_uri(overlay),
         "confidence":      confidence,
-        "model_mode":      model.get("mode", "demo"),
+        "model_mode":      MODEL.get("mode", "demo"),
     }

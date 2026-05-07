@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\hp\Documents\AS3_2025-2026\SEMESTRE_1\Maching Learning\Projet_3_ML\venv
+set VIRTUAL_ENV=C:\Users\dosse\Desktop\D-tection-de-maladies-chez-les-plantes-avec-U-Net\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
