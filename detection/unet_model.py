@@ -127,9 +127,18 @@ def load_model(path=None):
         return {"mode": "demo"}
 
 
-# ─── Téléchargement + chargement au démarrage Django ───────────────────────
+# ─── Téléchargement + chargement LAZY (à la première utilisation) ───────────
 _download_model()
-MODEL = load_model()
+MODEL = None  # Pas de chargement au démarrage !
+
+
+def get_model():
+    """Charge le modèle seulement à la première utilisation (lazy loading)."""
+    global MODEL
+    if MODEL is None:
+        print("Chargement du modèle à la première requête...")
+        MODEL = load_model()
+    return MODEL
 
 
 # ═══════════════════════════════════════════════════════════════════════════ #
@@ -195,9 +204,10 @@ def analyze_image(pil_image, alpha=0.45):
     arr = np.array(img) / 255.0
 
     # ── Génération du masque ─────────────────────────────────────────────
-    if MODEL.get("mode") == "real" and TORCH_AVAILABLE and ALB_AVAILABLE:
+    model = get_model()
+    if model.get("mode") == "real" and TORCH_AVAILABLE and ALB_AVAILABLE:
         tensor = _preprocess(img)
-        mask   = _predict_mask(MODEL["model"], tensor)
+        mask   = _predict_mask(model["model"], tensor)
     else:
         mask = _demo_mask(arr)
 
