@@ -188,7 +188,7 @@ python manage.py runserver
 - **Production** : `detection/models/unet_best.onnx` (ONNX, ~150 MB)
   - Généré automatiquement durant build Render
   - Pas en Git (.gitignore)
-- **Données d'entraînement** : [📁 Google Drive](https://drive.google.com/drive/folders/1zw-zpzRiAuQElYnDsRgDzFtwYUBu4lyc?usp=sharing)
+- **Dossier du modèle et données d'entraînement** : [📁 Google Drive](https://drive.google.com/drive/folders/1zw-zpzRiAuQElYnDsRgDzFtwYUBu4lyc?usp=sharing)
 - **Notebook d'entraînement** : [📓 Google Colab](https://colab.research.google.com/drive/1y5Pf1KgdRJXLcPgGJ3t4TByQEGnb54xV#scrollTo=A0nYa2WbBfuc)
 
 ---
