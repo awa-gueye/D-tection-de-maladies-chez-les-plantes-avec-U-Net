@@ -114,9 +114,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # CompressedStaticFilesStorage : compression gzip automatique, sans manifest.
+# DÉSACTIVÉ sur Render (plan free) pour économiser la mémoire.
 # Plus robuste que CompressedManifestStaticFilesStorage sur Render car
 # il ne dépend pas du fichier staticfiles.json.
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
 # WhiteNoise peut chercher les fichiers dans STATICFILES_DIRS directement,
 # même sans avoir lancé collectstatic. Utile en développement et en
