@@ -2,19 +2,19 @@ services:
   - type: web
     name: phytoscan-ai
     env: python
-    region: frankfurt    # Changer en oregon si vous préférez les serveurs US
-    plan: free           # Passer en starter ($7/mois) pour des performances stables
+    region: frankfurt
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn phytoscan.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: phytoscan.settings
       - key: SECRET_KEY
-        generateValue: true       # Render génère une valeur aléatoire automatiquement
+        generateValue: true
       - key: DEBUG
         value: "False"
       - key: PYTHON_VERSION
-        value: "3.12.0"
+        value: "3.11.9"
       - key: GROQ_API_KEY
         sync: false               # À saisir manuellement dans le dashboard Render
       - key: DATABASE_URL
