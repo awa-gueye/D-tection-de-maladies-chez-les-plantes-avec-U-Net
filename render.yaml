@@ -5,7 +5,7 @@ services:
     region: frankfurt
     plan: free
     buildCommand: "./build.sh"
-    startCommand: "gunicorn phytoscan.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
+    startCommand: "gunicorn phytoscan.wsgi:application --bind 0.0.0.0:$PORT --workers 1 --timeout 300"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: phytoscan.settings
