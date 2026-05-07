@@ -13,8 +13,6 @@ services:
         generateValue: true
       - key: DEBUG
         value: "False"
-      - key: PYTHON_VERSION
-        value: "3.11.9"
       - key: GROQ_API_KEY
         sync: false               # À saisir manuellement dans le dashboard Render
       - key: DATABASE_URL
