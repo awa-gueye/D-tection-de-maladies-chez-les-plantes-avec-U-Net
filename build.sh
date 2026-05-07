@@ -9,13 +9,18 @@ echo "=== 2. Installation des dépendances ==="
 pip install -r requirements.txt
 
 echo "=== 3. Collecte des fichiers statiques ==="
-python manage.py collectstatic --no-input --clear
+echo "Création du répertoire staticfiles..."
+mkdir -p staticfiles
+
+python manage.py collectstatic --no-input --verbosity 2
 
 echo "=== Vérification des fichiers statiques collectés ==="
-ls staticfiles/css/ || echo "AVERTISSEMENT: dossier css introuvable"
-ls staticfiles/js/  || echo "AVERTISSEMENT: dossier js introuvable"
+echo "Contenu de staticfiles:"
+ls -la staticfiles/ || echo "ERREUR: dossier staticfiles introuvable"
 
 echo "=== 4. Migrations de la base de données ==="
 python manage.py migrate
+
+echo "=== Build terminé avec succès ==="
 
 echo "=== Build terminé avec succès ==="
