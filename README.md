@@ -2,7 +2,7 @@
 
 Plateforme web de **détection de maladies des plantes** utilisant un modèle U-Net entraîné (segmentation sémantique). 
 
-**🚀 Déployée en production sur Render** : https://phytoscan-0fva.onrender.com
+**🚀 Déployée en production sur Render** : https://phytoscan-0fva.onrender.com/
 
 ---
 
